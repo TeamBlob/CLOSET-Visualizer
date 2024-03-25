@@ -11,11 +11,14 @@
               </div>
               <div className="min-w-0 flex-auto">
                 <p className="text-sm text-xs leading-6 text-gray-400">author</p>
-                <p className="mt-1 truncate font-semibold  leading-5 text-gray-900">{data.author}</p>
+                <p className="mt-1 truncate font-semibold  leading-5 text-gray-900">
+                  {data.author.length > 1 ? data.author[0].name + '[+'+(data.author.length-1).toString()+']' : data.author[0].name}
+                </p>
               </div>
               <div className="min-w-0 flex-auto">
                 <p className="text-sm text-xs leading-6 text-gray-400">reviewer</p>
-                <p className="mt-1 truncate font-semibold  leading-5 text-gray-900">{data.reviewer}</p>
+                <p className="mt-1 truncate font-semibold  leading-5 text-gray-900">
+                  {data.reviewer.length > 1 ? data.reviewer[0].name + '[+'+(data.reviewer.length-1).toString()+']' : data.reviewer[0].name}</p>
               </div>
             </div>
           </li>
