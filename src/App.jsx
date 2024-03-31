@@ -5,6 +5,8 @@ import './App.css'
 import SubCOIDashBoard from './components/SubCOI_Dashboard'
 import {Routes, Route} from 'react-router-dom'
 import COIMetaData from './components/COIMetaData'
+import GraphUI from './components/GraphUI'
+import XLSXReader from './components/XLSXReader'
 
 const COI_DASHBOARD = [
   {
@@ -60,11 +62,13 @@ function App() {
   return (
     <>
     <Header/>
+    <XLSXReader />
     <Routes>
       <Route path='/' element={<Dashboard COI_DASHBOARD={COI_DASHBOARD} />}></Route>
       <Route path='/PossibleCOI' element={<SubCOIDashBoard SUB_COI_DASHBOARD={COI_DASHBOARD[0]}/>}></Route>
       <Route path='/InstituionalCOI' element={<SubCOIDashBoard SUB_COI_DASHBOARD={COI_DASHBOARD[1]}/>}></Route>
       <Route path='/COIMetaData' element={<COIMetaData />}></Route>
+      <Route path='/GraphUI' element={<GraphUI />}></Route>
     </Routes>
     </>
 
