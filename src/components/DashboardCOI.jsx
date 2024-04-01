@@ -12,7 +12,7 @@ export default function Dashboard({COI_DASHBOARD})
             </header>
             <main>
                 <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    {COI_DASHBOARD.map((sub_coi) => (
+                    {Object.keys(COI_DASHBOARD).length > 0 && COI_DASHBOARD.map((sub_coi) => (
                         <div key={sub_coi.key}>
                             <div className="flex">
                                 <h2 className="text-2xl font-bold tracking-tight text-gray-900">
