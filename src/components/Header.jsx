@@ -6,14 +6,14 @@ import {Link} from 'react-router-dom'
 const navigation = [
   { name: 'Dashboard COI', href: '/', current: true },
   { name: 'Possible Violation', href: '/PossibleCOI', current: false },
-  { name: 'Insitution Violation', href: 'InstituionalCOI', current: false },
+  { name: 'Insitution Violation', href: '/InstituionalCOI', current: false },
 ]
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Header() {
+export default function Header({dashboard}) {
   return (
     <>
       <div className="min-h-full">

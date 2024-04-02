@@ -14,23 +14,19 @@ function App() {
   const [coiDashboard, setCOIDashboard] = useState([]);
   return (
     <>
-    <Header/>
+    <Header dashboard={coiDashboard}/>
+    
     <XLSXReader setdashboard={setCOIDashboard}/>
     <Routes>
-      {Object.keys(coiDashboard).length === 0 && "upload"}
-      {Object.keys(coiDashboard).length > 0 && 
-      <>
       <Route path='/' element={<Dashboard COI_DASHBOARD={coiDashboard} />}></Route>
-      { coiDashboard.map((sub_coi) => (
+      {Object.keys(coiDashboard).length > 0 && 
         <>
-          {console.log(sub_coi)};
-          <Route key={sub_coi.key} path={sub_coi.link} element={<SubCOIDashBoard SUB_COI_DASHBOARD={sub_coi}/>}></Route>
+          { coiDashboard.map((sub_coi) => (
+              <Route key={sub_coi.key} path={sub_coi.href} element={<SubCOIDashBoard SUB_COI_DASHBOARD={sub_coi}/>}></Route>
+          ))}
         </>
-
-      ))}
-      </>
-}
-      <Route path='/COIMetaData' element={<COIMetaData />}></Route>
+      }
+      <Route path='/coidetails/:pageid' element={<COIMetaData/>}></Route>
       <Route path='/GraphUI' element={<GraphUI />}></Route>
     </Routes>
     </>

@@ -39,12 +39,14 @@ const XLSXReader = ({setdashboard}) => {
             const reviewer_list = [];
             for (const match of author_matches) {
                 const matchedData = match[0].trim();
+                const key = crypto.randomUUID();
                 const name = matchedData.match(normalRegex)[0];
                 const detail = matchedData.match(detailRegex)[0].replace(/[()]/g, '').split(',').map(detail => detail.trim());
                 const email = detail[0];
                 const institute = detail[1];
             
                 const jsonData = {
+                    "key": key,
                     "name": name,
                     "email": email,
                     "institute": institute
@@ -73,8 +75,9 @@ const XLSXReader = ({setdashboard}) => {
                 for (const violation of matches) {
                     const strippedViolation = violation.replace(/[()]/g, '');
                     const [name1, name2] = strippedViolation.split(',').map(item => item.trim());
-                
+                    
                     const jsonData = {
+                        "key": crypto.randomUUID(),
                         "name1": name1,
                         "name2": name2
                     };
@@ -89,6 +92,7 @@ const XLSXReader = ({setdashboard}) => {
                     const institutes = institutesString.slice(1, -1).split(',').map(institute => institute.trim().slice(1, -1));
                 
                     const jsonData = {
+                        "key": crypto.randomUUID(),
                         "name": name.trim(),
                         "institute": institutes
                     };
@@ -140,8 +144,9 @@ const XLSXReader = ({setdashboard}) => {
                     const name = parts[0];
                     const period = parts[1].replace(/[\[\]\(\)]/g, '').trim();
                     const [year, month] = period.split(',').map(item => item.trim());
-
+                    
                     const jsonData = {
+                        key: crypto.randomUUID(),
                         name : name,
                         year : year,
                         month : month
@@ -169,21 +174,21 @@ const XLSXReader = ({setdashboard}) => {
     const coiTypes_dict = {
         "inst": {
             key: crypto.randomUUID(),
-            link: "InstituionalCOI",
+            href: "InstituionalCOI",
             name: "Instituional COI Violation",
             description: "It contains (potential) COI violation due to institutional match.",
             coi_function: buildInst
         },
         "meta" : {
             key: crypto.randomUUID(),
-            link: "PossibleCOI",
+            href: "PossibleCOI",
             name: "Possible COI Violation", 
             description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
             coi_function: buildPossibleViolation
         },
         "pc" : {
             key: crypto.randomUUID,
-            link: "PossibleCOI",
+            href: "PossibleCOI",
             name: "Possible COI Violation",
             description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
             coi_function: buildPossibleViolation
@@ -191,7 +196,7 @@ const XLSXReader = ({setdashboard}) => {
         "pastsub": {
             key: crypto.randomUUID,
             name: "Past Sub", 
-            link: "PastSubCOI",
+            href: "PastSubCOI",
             description: "COI violations due to published papers that appear in DBLP"},
             coi_function: () => {
                 console.log('This is my function');
@@ -241,7 +246,7 @@ const XLSXReader = ({setdashboard}) => {
                 key: coiType.key,
                 name: coiType.name,
                 description: coiType.description,
-                link: coiType.link,
+                href: coiType.href,
                 coi_data: coiType.coi_function(metadata)
             })
         }
