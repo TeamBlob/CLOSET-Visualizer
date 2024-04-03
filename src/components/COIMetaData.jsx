@@ -1,20 +1,42 @@
 import { useLocation } from "react-router-dom";
+import { buildGraph } from "../scripts/graph"
+import GraphUI from "./GraphUI"
+import SidePanel from "./SidePanel";
+import { useState, useEffect } from "react";
+
+
 
 export default function COIMetaData(){
     const location = useLocation();
     const state  = location.state;
+    const [open, setOpen] = useState(false)
 
     if (!state) {
         // Handle case when jsonData is null or undefined
         return <div>No data available</div>;
     } 
     const coi_data = state.coi_data;
-    console.log(coi_data)
+    const [graph, setGraph] = useState({});
+
+    useEffect(() => {
+        if (state) {
+            setGraph(buildGraph(state.coi_data));
+        }
+    }, [state]); // Only run when state changes
+
+    function showGraph() {
+        setOpen(true);
+    }
+
     return (
         <div>
             <header className="bg-white shadow">
-                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex space-x-4">
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">{'Page ID: ' + coi_data.pageId}</h1>
+                    <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-3 border border-gray-400 rounded shadow"
+                            onClick={() => showGraph()}>
+                        View Graph
+                    </button>
                 </div>
             </header>
             <main>
@@ -62,6 +84,9 @@ export default function COIMetaData(){
                         </tbody>
                         </table>
                 </div>
+            </main>
+            <main>
+                <SidePanel open={open} setOpen={setOpen}graph={graph}/>
             </main>
         </div>
     )

@@ -61,6 +61,7 @@ const XLSXReader = ({setdashboard}) => {
                 const institute = detail[1];
             
                 const jsonData = {
+                    "key": crypto.randomUUID(),
                     "name": name,
                     "email": email,
                     "institute": institute
@@ -130,11 +131,11 @@ const XLSXReader = ({setdashboard}) => {
                 const reviewerurl = metadata[i][2];
                 const violation = metadata[i][7];
                 
-                const authorName = author.match(normalRegex);
-                const authorEmail = author.match(emailRegex);
+                const authorName = author.match(normalRegex)[0];
+                const authorEmail = author.match(emailRegex)[0];
 
-                const reviewerName = reviewer.match(normalRegex);
-                const reviewerEmail = reviewer.match(emailRegex);
+                const reviewerName = reviewer.match(normalRegex)[0];
+                const reviewerEmail = reviewer.match(emailRegex)[0];
 
                 const matches = violation.match(possibleViolationRegex);
 
@@ -144,6 +145,7 @@ const XLSXReader = ({setdashboard}) => {
                     const name = parts[0];
                     const period = parts[1].replace(/[\[\]\(\)]/g, '').trim();
                     const [year, month] = period.split(',').map(item => item.trim());
+                    
                     
                     const jsonData = {
                         key: crypto.randomUUID(),
@@ -155,8 +157,8 @@ const XLSXReader = ({setdashboard}) => {
                 }
                 const coiData_json = {
                     pageId: paperid,
-                    author: [{ name: authorName, email: authorEmail}],
-                    reviewer: [{ name: reviewerName, email: reviewerEmail, url: reviewerurl }],
+                    author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
+                    reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail, url: reviewerurl }],
                     violation: {
                         type: "co-authorship_violation",
                         history: violationList

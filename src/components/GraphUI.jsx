@@ -3,28 +3,11 @@ import "./init"
 import Graph from "react-vis-network-graph";
 
 
-export default function GraphInterface() {
-    const graph = {
-      nodes: [
-        { id: "1", label: "1", title: "node 1 tootip text" },
-        { id: "2", label: "2", title: "node 2 tootip text" },
-        { id: "3", label: "3", title: "node 3 tootip text" },
-        { id: "4", label: "4", title: "node 4 tootip text" },
-        { id: "5", label: "5", title: "node 5 tootip text" },
-        { id: "6", label: "6", title: "node 6 tootip text" }
-      ],
-      edges: [
-        { from: "1", to: "2" },
-        { from: "1", to: "3" },
-        { from: "2", to: "4" },
-        { from: "2", to: "5" },
-        { from: "2", to: "6" },
-        { from: "6", to: "1" },
-        { from: "5", to: "6" }
-      ]
-    };
-  
+export default function GraphUI( { graph } ) {
+    
     const options = {
+      autoResize: false,
+
       layout: {
         hierarchical: false
       },
