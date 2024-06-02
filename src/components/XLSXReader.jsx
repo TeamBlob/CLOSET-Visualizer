@@ -6,7 +6,7 @@ const XLSXReader = ({setdashboard}) => {
 
     const [data, setData] = React.useState([]);
     const coiType_regexStr = "(Inst|Meta|PastSub|PC)"
-    const coi_regexStr = `Coi${coiType_regexStr}`
+    const coi_regexStr = `(All-Coi|Coi)${coiType_regexStr}`
     const vaildFile_regexStr = "[A-Za-z0-9 -_.,()\[\]]*"
     const filename_regex = new RegExp(`^(${coi_regexStr}${vaildFile_regexStr})`, 'i') // Regex for accepting files into the program
     const coi_regex = new RegExp(coiType_regexStr, 'i')
