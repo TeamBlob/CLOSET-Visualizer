@@ -1,15 +1,15 @@
 import React from 'react';
 import * as XLSX from 'xlsx';
 import FileInput from './FileInput';
+import { check_fields } from '../scripts/valid_fields'
 
 const XLSXReader = ({setdashboard}) => {
 
     const [data, setData] = React.useState([]);
-    const coiType_regexStr = "(Inst|Meta|PastSub|PC)"
+    const coiType_regexStr = "(Inst|Meta|PastSub|PC|MetaPastSub)"
     const coi_regexStr = `(All-Coi|Coi)${coiType_regexStr}`
     const vaildFile_regexStr = "[A-Za-z0-9 -_.,()\[\]]*"
     const filename_regex = new RegExp(`^(${coi_regexStr}${vaildFile_regexStr})`, 'i') // Regex for accepting files into the program
-    const coi_regex = new RegExp(coiType_regexStr, 'i')
 
     
     const buildInst = (metadata) =>{
@@ -173,6 +173,12 @@ const XLSXReader = ({setdashboard}) => {
         }
         return sub_coi_json
     }
+    const buildPastSub = (metadata) => {
+        const sub_coi_json = []
+        if(metadata.length <= 1) return sub_coi_json
+        return sub_coi_json
+
+    }
     const coiTypes_dict = {
         "inst": {
             key: crypto.randomUUID(),
@@ -181,17 +187,10 @@ const XLSXReader = ({setdashboard}) => {
             description: "It contains (potential) COI violation due to institutional match.",
             coi_function: buildInst
         },
-        "meta" : {
+        "meta_pc" : {
             key: crypto.randomUUID(),
             href: "PossibleCOI",
             name: "Possible COI Violation", 
-            description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
-            coi_function: buildPossibleViolation
-        },
-        "pc" : {
-            key: crypto.randomUUID,
-            href: "PossibleCOI",
-            name: "Possible COI Violation",
             description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
             coi_function: buildPossibleViolation
         },
@@ -199,10 +198,9 @@ const XLSXReader = ({setdashboard}) => {
             key: crypto.randomUUID,
             name: "Past Sub", 
             href: "PastSubCOI",
-            description: "COI violations due to published papers that appear in DBLP"},
-            coi_function: () => {
-                console.log('This is my function');
-            },
+            description: "COI violations due to published papers that appear in DBLP",
+            coi_function: buildPastSub
+        }
     }
     let COI_DASHBOARD = []
 
@@ -219,7 +217,7 @@ const XLSXReader = ({setdashboard}) => {
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                 resolve({filename: file.name, data: jsonData});
             };
-            reader.readAsBinaryString(file);
+                reader.readAsBinaryString(file);
             });
         })
         ).then((results) => {
@@ -235,8 +233,11 @@ const XLSXReader = ({setdashboard}) => {
             const filename = sub_coi.filename;
             if (!filename_regex.test(filename)) return;
             const metadata = sub_coi.data;
-            var match = coi_regex.exec(filename)
-            constructSubCOIJson(match[0], metadata)
+            const fields = metadata[0]
+            let type = check_fields(fields)
+            if (type != null)
+                console.log(type)
+                constructSubCOIJson(type, metadata)
         });
         setdashboard(COI_DASHBOARD)
     }
