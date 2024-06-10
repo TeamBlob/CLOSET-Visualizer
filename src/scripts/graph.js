@@ -12,8 +12,11 @@ export const buildGraph = (data) => {
     else if (data.violation.type === "cur_institutional_violation"){
         build_cur_institutional_violation_graph(graph, data);
     }
-    else if(data.violation.type === "co-authorship_violation"){
+    else if(data.violation.type === "co_authorship_violation"){
         build_possible_violation_graph(graph, data);
+    }
+    else if(data.violation.type === "past_sub"){
+        build_past_sub_graph(graph, data);
     }
     
     return graph
@@ -115,6 +118,17 @@ const build_cur_institutional_violation_graph = (graph, data) => {
 }
 
 const build_possible_violation_graph = (graph, data) => {
+    const authorKey = data.author[0].key
+    const reviewerKey = data.reviewer[0].key
+
+    const json = {
+        from: reviewerKey, to: authorKey
+    }
+    graph.edges.push(json)
+    console.log(graph)
+}
+
+const build_past_sub_graph = (graph, data) => {
     const authorKey = data.author[0].key
     const reviewerKey = data.reviewer[0].key
 

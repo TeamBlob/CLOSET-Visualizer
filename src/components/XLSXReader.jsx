@@ -91,7 +91,7 @@ const XLSXReader = ({setdashboard}) => {
                 for (const violation of matches) {
                     const [name, institutesString] = violation.split('-');
                     const institutes = institutesString.slice(1, -1).split(',').map(institute => institute.trim().slice(1, -1));
-                
+                    
                     const jsonData = {
                         "key": crypto.randomUUID(),
                         "name": name.trim(),
@@ -160,7 +160,7 @@ const XLSXReader = ({setdashboard}) => {
                     author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
                     reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail, url: reviewerurl }],
                     violation: {
-                        type: "co-authorship_violation",
+                        type: "co_authorship_violation",
                         history: violationList
                     }
                 }
@@ -175,14 +175,62 @@ const XLSXReader = ({setdashboard}) => {
     }
     const buildPastSub = (metadata) => {
         const sub_coi_json = []
+
         if(metadata.length <= 1) return sub_coi_json
 
+        const normalRegex = /[\w\s]+/;
+        const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
+        for (let i = 1; i < metadata.length; i++) 
+        {
+            try
+            {
+                const paperid = metadata[i][0];
+                const author = metadata[i][1];
+                const reviewer = metadata[i][2];
+                const recent_venue = metadata[i][3];
+                const submission_time = metadata[i][4];
+
+                const authorName = author.match(normalRegex)[0];
+                const authorEmail = author.match(emailRegex)[0];
+
+                const reviewerName = reviewer.match(normalRegex)[0];
+                const reviewerEmail = reviewer.match(emailRegex)[0];
+                
+                const violationList = [];
+
+                const jsonData = {
+                    "key": crypto.randomUUID(),
+                    "recent_venue": recent_venue,
+                    "submission_time": submission_time
+                };
+                violationList.push(jsonData);
+                
+                const coiData_json = {
+                    pageId: paperid,
+                    author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
+                    reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail}],
+                    violation: {
+                        type: "past_sub",
+                        history: violationList
+                    }
+                }
+
+
+                sub_coi_json.push(coiData_json)
+
+            }
+            catch(error){
+                console.log(error);
+                continue;
+            }
+        }
         return sub_coi_json
     }
     const coiTypes_dict = {
         "inst": {
             key: crypto.randomUUID(),
             href: "InstituionalCOI",
+            category: 1,
             name: "Instituional COI Violation",
             description: "It contains (potential) COI violation due to institutional match.",
             coi_function: buildInst
@@ -190,6 +238,7 @@ const XLSXReader = ({setdashboard}) => {
         "meta_pc" : {
             key: crypto.randomUUID(),
             href: "PossibleCOI",
+            category: 1,
             name: "Possible COI Violation", 
             description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
             coi_function: buildPossibleViolation
@@ -197,6 +246,7 @@ const XLSXReader = ({setdashboard}) => {
         "pastsub": {
             key: crypto.randomUUID,
             name: "Past Sub", 
+            category: 2,
             href: "PastSubCOI",
             description: "COI violations due to published papers that appear in DBLP",
             coi_function: buildPastSub

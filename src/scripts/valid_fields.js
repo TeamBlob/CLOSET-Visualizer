@@ -1,5 +1,4 @@
 // No False Positive
-
 const past_sub_fields = ['paper_id', 'author', 'metareviewers', 'most_recent_venue', 'submission_time']
 
 // May contain False Positive
