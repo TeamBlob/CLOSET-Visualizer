@@ -144,14 +144,14 @@ const XLSXReader = ({setdashboard}) => {
                     const parts = violation.trim().split(':');
                     const name = parts[0];
                     const period = parts[1].replace(/[\[\]\(\)]/g, '').trim();
-                    const [year, month] = period.split(',').map(item => item.trim());
+                    const [year, count] = period.split(',').map(item => item.trim());
                     
                     
                     const jsonData = {
                         key: crypto.randomUUID(),
                         name : name,
                         year : year,
-                        month : month
+                        count : count
                     };
                     violationList.push(jsonData);
                 }
@@ -176,8 +176,8 @@ const XLSXReader = ({setdashboard}) => {
     const buildPastSub = (metadata) => {
         const sub_coi_json = []
         if(metadata.length <= 1) return sub_coi_json
-        return sub_coi_json
 
+        return sub_coi_json
     }
     const coiTypes_dict = {
         "inst": {
