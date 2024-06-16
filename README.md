@@ -1,8 +1,16 @@
-# React + Vite
+# harmony-sessions
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Pre-requisites
 
-Currently, two official plugins are available:
+**At time of writing:**
+- VSCode
+- Node
+    - v20.12.0
+- NPM
+    - v10.5.0
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## How to start developing
+
+1. At your terminal, navigate to the root folder
+2. Run `npm run install:all` to install all the necessary modules
+3. At the root folder, run `npm run dev`
