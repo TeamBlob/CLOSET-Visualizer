@@ -2,7 +2,7 @@ import React from 'react';
 import * as XLSX from 'xlsx';
 import FileInput from './FileInput';
 import { checkFields } from '../scripts/valid_fields'
-import { buildPastSub, buildInst, buildMetaPC } from '../scripts/build_violation_structure';
+import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
 
 const XLSXReader = ({setDashboard}) => {
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
