@@ -8,11 +8,11 @@ export const buildGraph = (data) => {
     get_all_nodes(graph, data)
     build_default_edges(graph, data)
     console.log(data)
-    if (data.violation.type === "past_institutional_violation"){
-        build_past_institutional_violation_graph(graph, data);
+    if (data.violation.type === "positive_inst_violation"){
+        buildPositiveInstGraph(graph, data);
     }
-    else if (data.violation.type === "cur_institutional_violation"){
-        build_cur_institutional_violation_graph(graph, data);
+    else if (data.violation.type === "possible_inst_violation"){
+        buildPossibleInstGraph(graph, data);
     }
     else if(data.violation.type === "co_authorship_violation"){
         build_possible_violation_graph(graph, data);
@@ -79,7 +79,7 @@ const build_default_edges = (graph, data) => {
     }
 }
 
-const build_past_institutional_violation_graph = (graph, data) => {
+const buildPositiveInstGraph = (graph, data) => {
     const violations = data.violation.history
     for (let i = 0; i < violations.length; i++)
     {
@@ -95,7 +95,7 @@ const build_past_institutional_violation_graph = (graph, data) => {
     }
 }
 
-const build_cur_institutional_violation_graph = (graph, data) => {
+const buildPossibleInstGraph = (graph, data) => {
 
     const violations = data.violation.history
     console.log(violations)
