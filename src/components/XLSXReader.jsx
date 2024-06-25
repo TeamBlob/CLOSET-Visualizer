@@ -16,7 +16,6 @@ const XLSXReader = ({setDashboard}) => {
         "inst": {
             key: crypto.randomUUID(),
             href: "InstituionalCOI",
-            category: 1,
             name: "Instituional COI Violation",
             description: "It contains (potential) COI violation due to institutional match.",
             coi_function: buildInst
@@ -24,7 +23,6 @@ const XLSXReader = ({setDashboard}) => {
         "meta_pc" : {
             key: crypto.randomUUID(),
             href: "PossibleCOI",
-            category: 1,
             name: "Possible COI Violation", 
             description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
             coi_function: buildMetaPC
@@ -32,7 +30,6 @@ const XLSXReader = ({setDashboard}) => {
         "pastsub": {
             key: crypto.randomUUID,
             name: "Past Sub", 
-            category: 2,
             href: "PastSubCOI",
             description: "COI violations due to published papers that appear in DBLP",
             coi_function: buildPastSub
@@ -85,7 +82,6 @@ const XLSXReader = ({setDashboard}) => {
             COI_DASHBOARD.push({
                 key: coiType.key,
                 name: coiType.name,
-                category: coiType.category,
                 type: type.toLowerCase(),
                 description: coiType.description,
                 href: coiType.href,
