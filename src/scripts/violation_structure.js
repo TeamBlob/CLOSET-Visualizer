@@ -64,8 +64,17 @@ export const buildPastSub = (metadata) => {
 }
 
 export const buildInst = (metadata) =>{
+    const instData = [
+    { 
+        category: 'positive',
+        coi_data: [] 
+    }, 
+    { 
+        category: 'possible', 
+        coi_data: []
+    }]
 
-    if(metadata.length < 1) return sub_coi_json
+    if(metadata.length < 1) return instData
 
     const normalRegex = /[\w\s,\{\}\']+/;
     const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
@@ -80,12 +89,12 @@ export const buildInst = (metadata) =>{
             const paperid = row['PAPER ID'];
             const authors = row['AUTHORS'];
             const reviewers = row['META(REVIEWERS)'];
-            let isPastCOI = false;
+            let isPossible = false;
             let violation = row['DETAILS OF INSTITUTIONAL COI'];
             
             if (violation === "No violation w.r.t. current affiliations.")
             {
-                isPastCOI = true;
+                isPossible = true;
                 violation = row['DETAILS OF POSSIBLE PAST INSTITUTIONAL COI'];
             }
 
@@ -93,7 +102,7 @@ export const buildInst = (metadata) =>{
             const reviewer_list = handleInstSchema(reviewers.matchAll(nameDetailReg));
 
             const violationList = [];
-            if (!isPastCOI){
+            if (!isPossible){
                 const instRegex = /\([\w\s]+,[\w\s]+\)/g;
                 const matches = violation.match(instRegex);
                 for (const violation of matches) {
@@ -128,11 +137,13 @@ export const buildInst = (metadata) =>{
                 author: author_list,
                 reviewer: reviewer_list,
                 violation: {
-                    type: isPastCOI ? "cur_institutional_violation" : "past_institutional_violation",
+                    type: isPossible ? "possible_inst_violation" : "positive_inst_violation",
                     history: violationList
                 }
             }
-            sub_coi_json.push(coiData_json)
+
+            isPossible ? instData[1].coi_data.push(coiData_json) : instData[0].coi_data.push(coiData_json);
+            
         
         }
         catch(error){
@@ -141,7 +152,7 @@ export const buildInst = (metadata) =>{
         }
         
     }
-    return sub_coi_json
+    return instData
 }
 
 const handleInstSchema = (data) => {
@@ -172,8 +183,16 @@ const handleInstSchema = (data) => {
 }
 
 export const buildMetaPC = (metadata) =>{
-    const sub_coi_json = []
-    if(metadata.length < 1) return sub_coi_json
+    const metaPCData = [
+    { 
+        category: 'positive',
+        coi_data: [] 
+    }, 
+    { 
+        category: 'possible', 
+        coi_data: []
+    }]
+    if(metadata.length < 1) return metaPCData
     
     // Regex expression to extract the author/reviewer's name and email addresses
     const normalRegex = /[\w\s]+/;
@@ -183,6 +202,7 @@ export const buildMetaPC = (metadata) =>{
     {
         let row = metadata[i];
         try{
+            
             const paperid = row['PAPER IDS'];
             // author and reviewer schema -> name (email - address)
             const author = row['AUTHOR'];
@@ -199,7 +219,9 @@ export const buildMetaPC = (metadata) =>{
 
             const reviewerName = reviewer.match(normalRegex)[0];
             const reviewerEmail = reviewer.match(emailRegex)[0];
-            
+
+            const isPossible = Boolean(comment) // if comment is empty, isPossible is false, true otherwise
+            console.log(isPossible, comment)
             const coiData_json = {
                 pageId: paperid,
                 author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
@@ -213,14 +235,13 @@ export const buildMetaPC = (metadata) =>{
                     comment: comment,
                 }
             }
-            sub_coi_json.push(coiData_json)
-
+            isPossible ? metaPCData[1].coi_data.push(coiData_json) : metaPCData[0].coi_data.push(coiData_json);
         }
         catch(error){
             continue;
         }
     }
-    return sub_coi_json
+    return metaPCData
 } 
 
 const handle_meta_pc_schemas = (data) => {
