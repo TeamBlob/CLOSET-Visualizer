@@ -1,3 +1,5 @@
+import { findKeyByName } from './common_script'
+
 export const buildGraph = (data) => {
     const graph = {
         nodes: [],
@@ -12,8 +14,11 @@ export const buildGraph = (data) => {
     else if (data.violation.type === "cur_institutional_violation"){
         build_cur_institutional_violation_graph(graph, data);
     }
-    else if(data.violation.type === "co-authorship_violation"){
+    else if(data.violation.type === "co_authorship_violation"){
         build_possible_violation_graph(graph, data);
+    }
+    else if(data.violation.type === "past_sub"){
+        build_past_sub_graph(graph, data);
     }
     
     return graph
@@ -74,15 +79,6 @@ const build_default_edges = (graph, data) => {
     }
 }
 
-const findKeyByName = (jsonData, name) => {
-    for (let i = 0; i < jsonData.length; i++) {
-        if (jsonData[i].name.trim() === name.trim()) {
-            return jsonData[i].key;
-        }
-    }
-    return -1; // Return -1 if name is not found
-  };
-
 const build_past_institutional_violation_graph = (graph, data) => {
     const violations = data.violation.history
     for (let i = 0; i < violations.length; i++)
@@ -115,6 +111,17 @@ const build_cur_institutional_violation_graph = (graph, data) => {
 }
 
 const build_possible_violation_graph = (graph, data) => {
+    const authorKey = data.author[0].key
+    const reviewerKey = data.reviewer[0].key
+
+    const json = {
+        from: reviewerKey, to: authorKey
+    }
+    graph.edges.push(json)
+    console.log(graph)
+}
+
+const build_past_sub_graph = (graph, data) => {
     const authorKey = data.author[0].key
     const reviewerKey = data.reviewer[0].key
 

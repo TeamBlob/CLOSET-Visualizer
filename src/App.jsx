@@ -11,12 +11,12 @@ import XLSXReader from './components/XLSXReader'
 
 
 function App() {
-  const [coiDashboard, setCOIDashboard] = useState([]);
+  const [coiDashboard, setDashboard] = useState([]);
   return (
     <>
     <Header dashboard={coiDashboard}/>
     
-    <XLSXReader setdashboard={setCOIDashboard}/>
+    <XLSXReader setDashboard={setDashboard}/>
     <Routes>
       <Route path='/' element={<Dashboard COI_DASHBOARD={coiDashboard} />}></Route>
       {Object.keys(coiDashboard).length > 0 && 

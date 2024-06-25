@@ -1,5 +1,4 @@
 // No False Positive
-
 const past_sub_fields = ['paper_id', 'author', 'metareviewers', 'most_recent_venue', 'submission_time']
 
 // May contain False Positive
@@ -39,7 +38,7 @@ const areSimilarFields = (list1, list2) => {
 }
 
 
-export const check_fields = (input_fields) => {
+export const checkFields = (input_fields) => {
     // Input fields is provided by the imported file
     const formatFields = input_fields.map(word => processFields(word));
     for (let i = 0; i < allValidFields.length; i++) {
