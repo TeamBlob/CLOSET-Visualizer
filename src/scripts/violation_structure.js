@@ -1,8 +1,15 @@
 export const buildPastSub = (metadata) => {
-    const subCOIJson = []
-    const profileJson = []
+    const pastSubData = [
+    { 
+        category: 'positive',
+        coi_data: [] 
+    }, 
+    { 
+        category: 'possible', 
+        coi_data: []
+    }]
 
-    if(metadata.length < 1) return subCOIJson
+    if(metadata.length < 1) return pastSubData
 
     const normalRegex = /[\w\s]+/;
     const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
@@ -43,13 +50,17 @@ export const buildPastSub = (metadata) => {
                 }
             }
             
-            subCOIJson.push(coiData_json)
+            pastSubData[0].coi_data.push(coiData_json)
         }
         catch(error){
             continue;
         }
     }
-    return subCOIJson
+
+
+
+
+    return pastSubData
 }
 
 export const buildInst = (metadata) =>{
