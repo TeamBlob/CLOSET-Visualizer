@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import FileInput from './FileInput';
 import { checkFields } from '../scripts/valid_fields'
 import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
+import { buildProfiles } from "../scripts/profile";
 
 const XLSXReader = ({setDashboard}) => {
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
@@ -11,7 +12,7 @@ const XLSXReader = ({setDashboard}) => {
     const filenameRegex = new RegExp(`^(${coiFileNameRegexStr}${vaildFileRegexStr})`, 'i') // Regex for accepting files into the program
 
     
-    const coiTypes_dict = {
+    const coiTypesDict = {
         "inst": {
             key: crypto.randomUUID(),
             href: "InstituionalCOI",
@@ -67,21 +68,25 @@ const XLSXReader = ({setDashboard}) => {
             const filename = sub_coi.filename;
             if (!filenameRegex.test(filename)) return;
             const metadata = sub_coi.data;
-            const fields = metadata[0]
-            
-            let type = checkFields(Object.keys(fields))
-            if (type != null)
-                constructSubCOIJson(type, metadata)
+            const fields = metadata[0];
+            if (fields) {
+                let type = checkFields(Object.keys(fields))
+                if (type != null)
+                    constructSubCOIJson(type, metadata)
+            }
         });
+        buildProfiles(COI_DASHBOARD)
         setDashboard(COI_DASHBOARD)
     }
     const constructSubCOIJson = (type, metadata) =>{
-        const coiType = coiTypes_dict[type.toLowerCase()]
+        const coiType = coiTypesDict[type.toLowerCase()]
         if (!COI_DASHBOARD.hasOwnProperty(coiType.key))
         {
             COI_DASHBOARD.push({
                 key: coiType.key,
                 name: coiType.name,
+                category: coiType.category,
+                type: type.toLowerCase(),
                 description: coiType.description,
                 href: coiType.href,
                 coi_data: coiType.coi_function(metadata)

@@ -1,3 +1,5 @@
+import { findKeyByName } from './common_script'
+
 export const buildGraph = (data) => {
     const graph = {
         nodes: [],
@@ -76,15 +78,6 @@ const build_default_edges = (graph, data) => {
         graph.edges.push(json)
     }
 }
-
-const findKeyByName = (jsonData, name) => {
-    for (let i = 0; i < jsonData.length; i++) {
-        if (jsonData[i].name.trim() === name.trim()) {
-            return jsonData[i].key;
-        }
-    }
-    return -1; // Return -1 if name is not found
-  };
 
 const build_past_institutional_violation_graph = (graph, data) => {
     const violations = data.violation.history

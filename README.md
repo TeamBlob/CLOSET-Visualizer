@@ -1,4 +1,4 @@
-# harmony-sessions
+# coi-finder-application
 
 ## Pre-requisites
 

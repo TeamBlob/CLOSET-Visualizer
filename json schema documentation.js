@@ -5,6 +5,7 @@
  *      key: randomuuid,
  *      name: "Name of COI Violation", i.e Possible Violation, Instituional COI Violation, Past Sub Violation
  *      category: "1" or "2", - Stated in Documentation 
+ *      type: "inst", "meta_pc", "pastsub"
  *      description: "Description of violation", - Stated in Documentation
  *      href: "Header Link of the COI violation",
  *      paper_violation : [paper_violation, paper_violation, paper_violation ...],
@@ -65,19 +66,15 @@
  * 
  * - Reviewer and Authors JSON Schema
  * {
- *  "key": "randomuuid...",
- *  "name": "full_name",
- *  "type": "author" or "reviewer"
- *  "email": "email" optional,
- *  "paper: [paper_violation, paper_violation]",
- *  "violator": [ { 
- *                  violation_category: "Possible Violation" or "Positive Violation"
- *                  profile: profile_json, 
- *                }
- *                  reason: violation_category: "Possible Violation" or "Positive Violation"
- *                  profile: profile_json, 
- *                }
+ *  key: "randomuuid...",
+ *  name: "full_name",
+ *  email: "email" optional,
+ *  violator: {
+ *      possible: [{violator_email: violator_email, coi_paper: paper_violation, type: 'author' or 'reviewer'}...]
+ *      positive: [...]
+ *  } 
  * }
+ * 
  * 
  * - Graph and Nodes JSON Schema - Following schema provided by React Graph VIS: https://www.npmjs.com/package/react-graph-vis
  * 

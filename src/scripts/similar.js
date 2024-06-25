@@ -1,4 +1,5 @@
-export function similar(str1, str2) {
+export function similar(str1, str2) // Used to check the similarity between two individual
+{
     str1 = str1 + ' '.repeat(Math.max(0, str2.length - str1.length));
     str2 = str2 + ' '.repeat(Math.max(0, str1.length - str2.length));
     let count = 0;

@@ -1,10 +1,12 @@
 export const buildPastSub = (metadata) => {
     const subCOIJson = []
+    const profileJson = []
 
     if(metadata.length < 1) return subCOIJson
 
     const normalRegex = /[\w\s]+/;
     const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
+
     for (let i = 0; i < metadata.length; i++) 
     {
         let row = metadata[i]
@@ -40,8 +42,8 @@ export const buildPastSub = (metadata) => {
                     history: violationList
                 }
             }
+            
             subCOIJson.push(coiData_json)
-
         }
         catch(error){
             continue;
