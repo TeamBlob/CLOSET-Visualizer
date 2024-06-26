@@ -6,7 +6,7 @@
       <ul role="list" className="divide-y divide-gray-100">
         {coi_data.length === 0 && "No COI data retrieved"}
         {coi_data.map((data) => (
-          <li key={data.pageId} className="flex justify-between gap-x-6 py-5">
+          <li key={data.key} className="flex justify-between gap-x-6 py-5">
             <Link to={{ pathname: `/coidetails/${data.pageId}`}} state= {{ coi_data: data }} className="flex min-w-0 gap-x-4" >
               <div className="flex min-w-0 gap-x-4">
               <div className="min-w-0 flex-auto">

@@ -41,6 +41,7 @@ export const buildPastSub = (metadata) => {
             violationList.push(jsonData);
             
             const coiData_json = {
+                key: crypto.randomUUID(),
                 pageId: paperid,
                 author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
                 reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail}],
@@ -81,7 +82,6 @@ export const buildInst = (metadata) =>{
     const detailRegex = new RegExp(`\\(${emailRegex.source}, ${normalRegex.source}\\)`);
     const nameDetailReg = new RegExp(`(${normalRegex.source}${detailRegex.source})`, 'g');
 
-    const sub_coi_json = []
     for (let i = 0; i < metadata.length; i++) {
         let row = metadata[i]
         try
@@ -133,6 +133,7 @@ export const buildInst = (metadata) =>{
                 }
             }
             const coiData_json = {
+                key: crypto.randomUUID(),
                 pageId: paperid,
                 author: author_list,
                 reviewer: reviewer_list,
@@ -222,6 +223,7 @@ export const buildMetaPC = (metadata) =>{
 
             const isPossible = Boolean(comment) // if comment is empty, isPossible is false, true otherwise
             const coiData_json = {
+                key: crypto.randomUUID(),
                 pageId: paperid,
                 author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
                 reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail, url: reviewerURL }],

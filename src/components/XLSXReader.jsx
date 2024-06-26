@@ -5,7 +5,7 @@ import { checkFields } from '../scripts/valid_fields'
 import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
 import { buildProfiles } from "../scripts/profile";
 
-const XLSXReader = ({setDashboard}) => {
+const XLSXReader = ({setDashboard, setProfiles}) => {
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
     const coiFileNameRegexStr = `(All-Coi|Coi)${coiTypeRegex}`
     const vaildFileRegexStr = "[A-Za-z0-9 -_.,()\[\]]*"
@@ -76,7 +76,7 @@ const XLSXReader = ({setDashboard}) => {
             }
         });
 
-        console.log(buildProfiles(COI_DASHBOARD))
+        setProfiles(buildProfiles(COI_DASHBOARD))
         setDashboard(COI_DASHBOARD)
     }
     const constructSubCOIJson = (type, metadata) =>{
