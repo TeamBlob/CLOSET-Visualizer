@@ -45,8 +45,8 @@ export const checkFields = (input_fields) => {
 
         let result = areSimilarFields(formatFields, allValidFields[i][1]);
         if (result == true){
-            return allValidFields[i][0]
+            return allValidFields[i][0];
         }
     }
-    return null
+    return -1;
 }

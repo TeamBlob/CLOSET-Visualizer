@@ -221,7 +221,6 @@ export const buildMetaPC = (metadata) =>{
             const reviewerEmail = reviewer.match(emailRegex)[0];
 
             const isPossible = Boolean(comment) // if comment is empty, isPossible is false, true otherwise
-            console.log(isPossible, comment)
             const coiData_json = {
                 pageId: paperid,
                 author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],

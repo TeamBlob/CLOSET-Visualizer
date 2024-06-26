@@ -10,7 +10,10 @@ const XLSXReader = ({setDashboard}) => {
     const coiFileNameRegexStr = `(All-Coi|Coi)${coiTypeRegex}`
     const vaildFileRegexStr = "[A-Za-z0-9 -_.,()\[\]]*"
     const filenameRegex = new RegExp(`^(${coiFileNameRegexStr}${vaildFileRegexStr})`, 'i') // Regex for accepting files into the program
-
+    const COI_DASHBOARD = {
+        'positive': [],
+        'possible': [],
+    }
     
     const coiTypesDict = {
         "inst": {
@@ -28,14 +31,14 @@ const XLSXReader = ({setDashboard}) => {
             coi_function: buildMetaPC
         },
         "pastsub": {
-            key: crypto.randomUUID,
+            key: crypto.randomUUID(),
             name: "Past Sub", 
             href: "PastSubCOI",
             description: "COI violations due to published papers that appear in DBLP",
             coi_function: buildPastSub
         }
     }
-    let COI_DASHBOARD = []
+    
 
     const handleFileUpload = (files) => {
         const filesArray = Array.from(files); // Convert FileList to array
@@ -68,26 +71,42 @@ const XLSXReader = ({setDashboard}) => {
             const fields = metadata[0];
             if (fields) {
                 let type = checkFields(Object.keys(fields))
-                if (type != null)
+                if (type !== -1)
                     constructSubCOIJson(type, metadata)
             }
         });
-        buildProfiles(COI_DASHBOARD)
+
+        console.log(buildProfiles(COI_DASHBOARD))
         setDashboard(COI_DASHBOARD)
     }
     const constructSubCOIJson = (type, metadata) =>{
+        // retrieve coiType json from coiTypesDict dictionary
         const coiType = coiTypesDict[type.toLowerCase()]
-        if (!COI_DASHBOARD.hasOwnProperty(coiType.key))
-        {
-            COI_DASHBOARD.push({
-                key: coiType.key,
-                name: coiType.name,
-                type: type.toLowerCase(),
-                description: coiType.description,
-                href: coiType.href,
-                coi_data: coiType.coi_function(metadata)
-            })
+
+        const coi_data = coiType.coi_function(metadata)
+        const positive = coi_data[0];
+        const possible = coi_data[1];
+
+        const positiveJson = {
+            key: coiType.key,
+            name: coiType.name,
+            type: type.toLowerCase(),
+            description: coiType.description,
+            href: coiType.href,
+            coi_data: positive.coi_data
         }
+
+        const possibleJson = {
+            key: coiType.key,
+            name: coiType.name,
+            type: type.toLowerCase(),
+            description: coiType.description,
+            href: coiType.href,
+            coi_data: possible.coi_data
+        }
+
+        COI_DASHBOARD.positive.push(positiveJson)
+        COI_DASHBOARD.possible.push(possibleJson)
     }
 
 
