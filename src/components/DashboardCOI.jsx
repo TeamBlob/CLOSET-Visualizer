@@ -1,8 +1,9 @@
 import Sub_List from "./Sub-List"
 import Tooltip from "./ToolTips"
 
-export default function Dashboard({COI_DASHBOARD})
+export default function Dashboard({dashboardData})
 {
+    console.log(dashboardData)
     return (
         <div>
             <header className="bg-white shadow">
@@ -12,7 +13,7 @@ export default function Dashboard({COI_DASHBOARD})
             </header>
             <main>
                 <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    {Object.keys(COI_DASHBOARD).length > 0 && COI_DASHBOARD.map((sub_coi) => (
+                    {Object.keys(dashboardData).length > 0 && Object.values(dashboardData).map((sub_coi) => (
                         <div key={sub_coi.key}>
                             <div className="flex">
                                 <h2 className="text-2xl font-bold tracking-tight text-gray-900">

@@ -4,6 +4,7 @@ import FileInput from './FileInput';
 import { checkFields } from '../scripts/valid_fields'
 import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
 import { buildProfiles } from "../scripts/profile";
+import { concatList } from "../scripts/common_script"
 
 const XLSXReader = ({setDashboard, setProfiles}) => {
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
@@ -11,8 +12,8 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
     const vaildFileRegexStr = "[A-Za-z0-9 -_.,()\[\]]*"
     const filenameRegex = new RegExp(`^(${coiFileNameRegexStr}${vaildFileRegexStr})`, 'i') // Regex for accepting files into the program
     const COI_DASHBOARD = {
-        'positive': [],
-        'possible': [],
+        'positive': {},
+        'possible': {},
     }
     
     const coiTypesDict = {
@@ -75,9 +76,9 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
                     constructSubCOIJson(type, metadata)
             }
         });
-
-        setProfiles(buildProfiles(COI_DASHBOARD))
-        setDashboard(COI_DASHBOARD)
+        const profile = buildProfiles(COI_DASHBOARD);
+        setProfiles(profile);
+        setDashboard(COI_DASHBOARD);
     }
     const constructSubCOIJson = (type, metadata) =>{
         // retrieve coiType json from coiTypesDict dictionary
@@ -86,27 +87,45 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
         const coi_data = coiType.coi_function(metadata)
         const positive = coi_data[0];
         const possible = coi_data[1];
+        console.log('coi_data',coi_data)
+        // Populating Positive COI Dataset
+        if (coiType.key in COI_DASHBOARD.positive)
+        {
+            const orginal = COI_DASHBOARD.positive[coiType.key].coi_data
 
-        const positiveJson = {
-            key: coiType.key,
-            name: coiType.name,
-            type: type.toLowerCase(),
-            description: coiType.description,
-            href: coiType.href,
-            coi_data: positive.coi_data
+            COI_DASHBOARD.positive[coiType.key].coi_data = concatList(orginal, positive.coi_data)
         }
-
-        const possibleJson = {
-            key: coiType.key,
-            name: coiType.name,
-            type: type.toLowerCase(),
-            description: coiType.description,
-            href: coiType.href,
-            coi_data: possible.coi_data
+        else {
+            const positiveJson = {
+                key: coiType.key,
+                name: coiType.name,
+                type: type.toLowerCase(),
+                description: coiType.description,
+                href: coiType.href,
+                coi_data: positive.coi_data
+            }
+            COI_DASHBOARD.positive[coiType.key] = positiveJson
         }
+        
+        // Populating Possible COI Dataset
+        if (coiType.key in COI_DASHBOARD.possible)
+        {
+            const orginal = COI_DASHBOARD.possible[coiType.key].coi_data
 
-        COI_DASHBOARD.positive.push(positiveJson)
-        COI_DASHBOARD.possible.push(possibleJson)
+            COI_DASHBOARD.possible[coiType.key].coi_data = concatList(orginal, possible.coi_data)
+        }
+        else {
+            const possibleJson = {
+                key: coiType.key,
+                name: coiType.name,
+                type: type.toLowerCase(),
+                description: coiType.description,
+                href: coiType.href,
+                coi_data: possible.coi_data
+            }
+            COI_DASHBOARD.possible[coiType.key] = possibleJson
+        }
+        console.log(COI_DASHBOARD)
     }
 
 

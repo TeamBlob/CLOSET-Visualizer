@@ -18,3 +18,7 @@ export const findProfileByName = (jsonData, name, type) => {
     }
     return -1; // Return -1 if name is not found
 };
+
+export const concatList = (list1, list2) => {
+    return [...list1, ...list2];
+}

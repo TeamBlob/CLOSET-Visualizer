@@ -99,14 +99,23 @@ const coiFunction = {
 
 export const buildProfiles = (data) => {
     const profiles = {};
-    data.positive.map((x) => {
-        let key = x.type;
-        coiFunction[key].build(x.coi_data, profiles, 'positive')
-    })
-    data.possible.map((x) => {
-        let key = x.type;
-        coiFunction[key].build(x.coi_data, profiles, 'possible')
-    })
+    Object.keys(data.positive).forEach((key) => {
+        const coiData = data.positive[key]
+        let type = coiData.type;
+
+        coiFunction[type].build(coiData.coi_data, profiles, 'positive')
+    });
+
+
+    Object.keys(data.possible).forEach((key) => {
+        const coiData = data.possible[key]
+        let type = coiData.type;
+
+        coiFunction[type].build(coiData.coi_data, profiles, 'possible')
+    });
+
+
+    
     return profiles;
     
 }

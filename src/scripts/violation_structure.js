@@ -52,15 +52,13 @@ export const buildPastSub = (metadata) => {
             }
             
             pastSubData[0].coi_data.push(coiData_json)
+
         }
         catch(error){
             continue;
         }
     }
-
-
-
-
+    
     return pastSubData
 }
 
@@ -148,7 +146,6 @@ export const buildInst = (metadata) =>{
         
         }
         catch(error){
-            console.log(error);
             continue;
         }
         
@@ -239,6 +236,7 @@ export const buildMetaPC = (metadata) =>{
             isPossible ? metaPCData[1].coi_data.push(coiData_json) : metaPCData[0].coi_data.push(coiData_json);
         }
         catch(error){
+
             continue;
         }
     }
@@ -246,9 +244,10 @@ export const buildMetaPC = (metadata) =>{
 } 
 
 const handle_meta_pc_schemas = (data) => {
+
     // Regex expression
-    const violationRegex = /([a-zA-Z0-9\s]+:\s*(\[(\(\d{4},\d{1,2}\))+\]))/gs;
-    const flagRegex = /(\(\d{4},\d{1,2}\))/gs;
+    const violationRegex = /([a-zA-Z0-9\s]+:\s*(\[(\(\d{4},\s\d{1,2}\)(, )*)+\]))/gs;
+    const flagRegex = /(\d{4},\d{1,2})/gs;
     const violationList = []
     let matches = data.match(violationRegex);
     if (!matches)
@@ -260,7 +259,7 @@ const handle_meta_pc_schemas = (data) => {
         const name = parts[0];
         const flagged = parts[1];
         const allFlags = flagged.replace(/\s+/g, '').match(flagRegex);
-
+        
         const jsonData = {
             key: crypto.randomUUID(),
             name : name,

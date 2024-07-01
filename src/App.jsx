@@ -11,19 +11,24 @@ import XLSXReader from './components/XLSXReader'
 
 
 function App() {
-  const [coiDashboard, setDashboard] = useState([]);
+  const [coiDashboard, setDashboard] = useState({});
+  const [profiles, setProfiles] = useState({});
   return (
     <>
-    <Header dashboard={coiDashboard}/>
+    <Header/>
     
-    <XLSXReader setDashboard={setDashboard}/>
+    
     <Routes>
-      <Route path='/' element={<Dashboard COI_DASHBOARD={coiDashboard} />}></Route>
-      {Object.keys(coiDashboard).length > 0 && 
+      <Route path='/' element={<XLSXReader setDashboard={setDashboard} setProfiles={setProfiles}/>}></Route>
+      {
+        Object.keys(coiDashboard).length > 0 && 
         <>
-          { coiDashboard.map((sub_coi) => (
-              <Route key={sub_coi.key} path={sub_coi.href} element={<SubCOIDashBoard SUB_COI_DASHBOARD={sub_coi}/>}></Route>
-          ))}
+          { 
+            <Route key={crypto.randomUUID()} path='/possible' element={<Dashboard dashboardData={coiDashboard.possible} />}></Route>
+          }
+          { 
+            <Route key={crypto.randomUUID()} path='/positive' element={<Dashboard dashboardData={coiDashboard.positive}/>}></Route>
+          }
         </>
       }
       <Route path='/coidetails/:pageid' element={<COIMetaData/>}></Route>
