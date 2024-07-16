@@ -1,16 +1,18 @@
 /**
  * - Dashboard JSON Format
- * [
- *  {
- *      key: randomuuid,
- *      name: "Name of COI Violation", i.e Possible Violation, Instituional COI Violation, Past Sub Violation
- *      category: "1" or "2", - Stated in Documentation 
- *      type: "inst", "meta_pc", "pastsub"
- *      description: "Description of violation", - Stated in Documentation
- *      href: "Header Link of the COI violation",
- *      paper_violation : [paper_violation, paper_violation, paper_violation ...],
- *  }
- * ]
+ * {
+ *  possible : [
+ *      {
+ *          key: randomuuid,
+ *          name: "Name of COI Violation", i.e Possible Violation, Instituional COI Violation, Past Sub Violation
+ *          type: "inst", "meta_pc", "pastsub"
+ *          description: "Description of violation", - Stated in Documentation
+ *          href: "Header Link of the COI violation",
+ *          paper_violation : [paper_violation, paper_violation, paper_violation ...],
+ *      },...
+ *  ]
+ *  positive : [ ... ]
+ * }
  * Documentation: 'CLOSET User Information.pdf'
  * 
  * Paper Violation consist of 3 format Past_Sub, Inst, and Meta_PC Schema

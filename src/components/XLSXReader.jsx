@@ -4,19 +4,22 @@ import FileInput from './FileInput';
 import { checkFields } from '../scripts/valid_fields'
 import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
 import { buildProfiles } from "../scripts/profile";
+import { concatList } from "../scripts/common_script"
 
-const XLSXReader = ({setDashboard}) => {
+const XLSXReader = ({setDashboard, setProfiles}) => {
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
     const coiFileNameRegexStr = `(All-Coi|Coi)${coiTypeRegex}`
     const vaildFileRegexStr = "[A-Za-z0-9 -_.,()\[\]]*"
     const filenameRegex = new RegExp(`^(${coiFileNameRegexStr}${vaildFileRegexStr})`, 'i') // Regex for accepting files into the program
-
+    const COI_DASHBOARD = {
+        'positive': {},
+        'possible': {},
+    }
     
     const coiTypesDict = {
         "inst": {
             key: crypto.randomUUID(),
             href: "InstituionalCOI",
-            category: 1,
             name: "Instituional COI Violation",
             description: "It contains (potential) COI violation due to institutional match.",
             coi_function: buildInst
@@ -24,21 +27,19 @@ const XLSXReader = ({setDashboard}) => {
         "meta_pc" : {
             key: crypto.randomUUID(),
             href: "PossibleCOI",
-            category: 1,
             name: "Possible COI Violation", 
             description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
             coi_function: buildMetaPC
         },
         "pastsub": {
-            key: crypto.randomUUID,
+            key: crypto.randomUUID(),
             name: "Past Sub", 
-            category: 2,
             href: "PastSubCOI",
             description: "COI violations due to published papers that appear in DBLP",
             coi_function: buildPastSub
         }
     }
-    let COI_DASHBOARD = []
+    
 
     const handleFileUpload = (files) => {
         const filesArray = Array.from(files); // Convert FileList to array
@@ -71,27 +72,60 @@ const XLSXReader = ({setDashboard}) => {
             const fields = metadata[0];
             if (fields) {
                 let type = checkFields(Object.keys(fields))
-                if (type != null)
+                if (type !== -1)
                     constructSubCOIJson(type, metadata)
             }
         });
-        buildProfiles(COI_DASHBOARD)
-        setDashboard(COI_DASHBOARD)
+        const profile = buildProfiles(COI_DASHBOARD);
+        setProfiles(profile);
+        setDashboard(COI_DASHBOARD);
     }
     const constructSubCOIJson = (type, metadata) =>{
+        // retrieve coiType json from coiTypesDict dictionary
         const coiType = coiTypesDict[type.toLowerCase()]
-        if (!COI_DASHBOARD.hasOwnProperty(coiType.key))
+
+        const coi_data = coiType.coi_function(metadata)
+        const positive = coi_data[0];
+        const possible = coi_data[1];
+        console.log('coi_data',coi_data)
+        // Populating Positive COI Dataset
+        if (coiType.key in COI_DASHBOARD.positive)
         {
-            COI_DASHBOARD.push({
+            const orginal = COI_DASHBOARD.positive[coiType.key].coi_data
+
+            COI_DASHBOARD.positive[coiType.key].coi_data = concatList(orginal, positive.coi_data)
+        }
+        else {
+            const positiveJson = {
                 key: coiType.key,
                 name: coiType.name,
-                category: coiType.category,
                 type: type.toLowerCase(),
                 description: coiType.description,
                 href: coiType.href,
-                coi_data: coiType.coi_function(metadata)
-            })
+                coi_data: positive.coi_data
+            }
+            COI_DASHBOARD.positive[coiType.key] = positiveJson
         }
+        
+        // Populating Possible COI Dataset
+        if (coiType.key in COI_DASHBOARD.possible)
+        {
+            const orginal = COI_DASHBOARD.possible[coiType.key].coi_data
+
+            COI_DASHBOARD.possible[coiType.key].coi_data = concatList(orginal, possible.coi_data)
+        }
+        else {
+            const possibleJson = {
+                key: coiType.key,
+                name: coiType.name,
+                type: type.toLowerCase(),
+                description: coiType.description,
+                href: coiType.href,
+                coi_data: possible.coi_data
+            }
+            COI_DASHBOARD.possible[coiType.key] = possibleJson
+        }
+        console.log(COI_DASHBOARD)
     }
 
 

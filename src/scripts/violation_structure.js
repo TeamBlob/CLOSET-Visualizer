@@ -1,8 +1,15 @@
 export const buildPastSub = (metadata) => {
-    const subCOIJson = []
-    const profileJson = []
+    const pastSubData = [
+    { 
+        category: 'positive',
+        coi_data: [] 
+    }, 
+    { 
+        category: 'possible', 
+        coi_data: []
+    }]
 
-    if(metadata.length < 1) return subCOIJson
+    if(metadata.length < 1) return pastSubData
 
     const normalRegex = /[\w\s]+/;
     const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
@@ -34,6 +41,7 @@ export const buildPastSub = (metadata) => {
             violationList.push(jsonData);
             
             const coiData_json = {
+                key: crypto.randomUUID(),
                 pageId: paperid,
                 author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
                 reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail}],
@@ -43,25 +51,35 @@ export const buildPastSub = (metadata) => {
                 }
             }
             
-            subCOIJson.push(coiData_json)
+            pastSubData[0].coi_data.push(coiData_json)
+
         }
         catch(error){
             continue;
         }
     }
-    return subCOIJson
+    
+    return pastSubData
 }
 
 export const buildInst = (metadata) =>{
+    const instData = [
+    { 
+        category: 'positive',
+        coi_data: [] 
+    }, 
+    { 
+        category: 'possible', 
+        coi_data: []
+    }]
 
-    if(metadata.length < 1) return sub_coi_json
+    if(metadata.length < 1) return instData
 
     const normalRegex = /[\w\s,\{\}\']+/;
     const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
     const detailRegex = new RegExp(`\\(${emailRegex.source}, ${normalRegex.source}\\)`);
     const nameDetailReg = new RegExp(`(${normalRegex.source}${detailRegex.source})`, 'g');
 
-    const sub_coi_json = []
     for (let i = 0; i < metadata.length; i++) {
         let row = metadata[i]
         try
@@ -69,12 +87,12 @@ export const buildInst = (metadata) =>{
             const paperid = row['PAPER ID'];
             const authors = row['AUTHORS'];
             const reviewers = row['META(REVIEWERS)'];
-            let isPastCOI = false;
+            let isPossible = false;
             let violation = row['DETAILS OF INSTITUTIONAL COI'];
             
             if (violation === "No violation w.r.t. current affiliations.")
             {
-                isPastCOI = true;
+                isPossible = true;
                 violation = row['DETAILS OF POSSIBLE PAST INSTITUTIONAL COI'];
             }
 
@@ -82,7 +100,7 @@ export const buildInst = (metadata) =>{
             const reviewer_list = handleInstSchema(reviewers.matchAll(nameDetailReg));
 
             const violationList = [];
-            if (!isPastCOI){
+            if (!isPossible){
                 const instRegex = /\([\w\s]+,[\w\s]+\)/g;
                 const matches = violation.match(instRegex);
                 for (const violation of matches) {
@@ -113,24 +131,26 @@ export const buildInst = (metadata) =>{
                 }
             }
             const coiData_json = {
+                key: crypto.randomUUID(),
                 pageId: paperid,
                 author: author_list,
                 reviewer: reviewer_list,
                 violation: {
-                    type: isPastCOI ? "cur_institutional_violation" : "past_institutional_violation",
+                    type: isPossible ? "possible_inst_violation" : "positive_inst_violation",
                     history: violationList
                 }
             }
-            sub_coi_json.push(coiData_json)
+
+            isPossible ? instData[1].coi_data.push(coiData_json) : instData[0].coi_data.push(coiData_json);
+            
         
         }
         catch(error){
-            console.log(error);
             continue;
         }
         
     }
-    return sub_coi_json
+    return instData
 }
 
 const handleInstSchema = (data) => {
@@ -161,8 +181,16 @@ const handleInstSchema = (data) => {
 }
 
 export const buildMetaPC = (metadata) =>{
-    const sub_coi_json = []
-    if(metadata.length < 1) return sub_coi_json
+    const metaPCData = [
+    { 
+        category: 'positive',
+        coi_data: [] 
+    }, 
+    { 
+        category: 'possible', 
+        coi_data: []
+    }]
+    if(metadata.length < 1) return metaPCData
     
     // Regex expression to extract the author/reviewer's name and email addresses
     const normalRegex = /[\w\s]+/;
@@ -172,6 +200,7 @@ export const buildMetaPC = (metadata) =>{
     {
         let row = metadata[i];
         try{
+            
             const paperid = row['PAPER IDS'];
             // author and reviewer schema -> name (email - address)
             const author = row['AUTHOR'];
@@ -188,8 +217,10 @@ export const buildMetaPC = (metadata) =>{
 
             const reviewerName = reviewer.match(normalRegex)[0];
             const reviewerEmail = reviewer.match(emailRegex)[0];
-            
+
+            const isPossible = Boolean(comment) // if comment is empty, isPossible is false, true otherwise
             const coiData_json = {
+                key: crypto.randomUUID(),
                 pageId: paperid,
                 author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
                 reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail, url: reviewerURL }],
@@ -202,20 +233,21 @@ export const buildMetaPC = (metadata) =>{
                     comment: comment,
                 }
             }
-            sub_coi_json.push(coiData_json)
-
+            isPossible ? metaPCData[1].coi_data.push(coiData_json) : metaPCData[0].coi_data.push(coiData_json);
         }
         catch(error){
+
             continue;
         }
     }
-    return sub_coi_json
+    return metaPCData
 } 
 
 const handle_meta_pc_schemas = (data) => {
+
     // Regex expression
-    const violationRegex = /([a-zA-Z0-9\s]+:\s*(\[(\(\d{4},\d{1,2}\))+\]))/gs;
-    const flagRegex = /(\(\d{4},\d{1,2}\))/gs;
+    const violationRegex = /([a-zA-Z0-9\s]+:\s*(\[(\(\d{4},\s\d{1,2}\)(, )*)+\]))/gs;
+    const flagRegex = /(\d{4},\d{1,2})/gs;
     const violationList = []
     let matches = data.match(violationRegex);
     if (!matches)
@@ -227,7 +259,7 @@ const handle_meta_pc_schemas = (data) => {
         const name = parts[0];
         const flagged = parts[1];
         const allFlags = flagged.replace(/\s+/g, '').match(flagRegex);
-
+        
         const jsonData = {
             key: crypto.randomUUID(),
             name : name,

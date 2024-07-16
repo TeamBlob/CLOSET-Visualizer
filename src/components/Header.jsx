@@ -4,16 +4,16 @@ import {Link} from 'react-router-dom'
 
 
 const navigation = [
-  { name: 'Dashboard COI', href: '/', current: true },
-  { name: 'Possible Violation', href: '/PossibleCOI', current: false },
-  { name: 'Insitution Violation', href: '/InstituionalCOI', current: false },
+  { name: 'Upload File', href: '/', current: true },
+  { name: 'Possible Violation', href: '/possible', current: false },
+  { name: 'Positive Violation', href: '/positive', current: false },
 ]
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Header({dashboard}) {
+export default function Header() {
   return (
     <>
       <div className="min-h-full">

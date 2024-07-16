@@ -1,15 +1,3 @@
-/**
- * {
- *  key: "randomuuid...",
- *  name: "full_name",
- *  email: "email" optional,
- *  violator: {
- *      possible: [{violator_email: violator_email, type: 'author' or 'reviewer', coi_paper: paper_violation, }]
- *      positive: [...]
- *  } 
- * }
- * 
-**/
 import { findProfileByName } from './common_script'
 
 const buildTempProfile = (name, email) =>{
@@ -24,11 +12,11 @@ const buildTempProfile = (name, email) =>{
     }
 }
 
-const addProfile = (profiles, person, violator, type, coiPaper, violation_category) => {
+const addProfile = (profiles, person, violator, role, coiPaper, violation_category) => {
     // building the coi violator schema
     let violatorSchema = {
         violator: violator.email,
-        type: type,
+        role: role,
         coi_paper: coiPaper, 
     };
     
@@ -39,42 +27,40 @@ const addProfile = (profiles, person, violator, type, coiPaper, violation_catego
     profiles[person.email].violator[violation_category].push(violatorSchema);
 }
 
-const buildProfilePastSub = (data, profiles) => {
+const buildProfilePastSub = (data, profiles, category) => {
     data.map((coiPaper) => {
         let author = coiPaper.author[0];
         let reviewer = coiPaper.reviewer[0];
         //For authors of the paper
-        addProfile(profiles, author, reviewer, "author", coiPaper, "positive")
+        addProfile(profiles, author, reviewer, "author", coiPaper, category)
         //For reviewer of the paper
-        addProfile(profiles, reviewer, author, "reviewer", coiPaper, "positive")
+        addProfile(profiles, reviewer, author, "reviewer", coiPaper, category)
     })
 }
-const buildProfileMetaPC = (data, profiles) => {
+const buildProfileMetaPC = (data, profiles, category) => {
     data.map((coiPaper) => {
         let author = coiPaper.author[0];
         let reviewer = coiPaper.reviewer[0];
 
         //For authors of the paper
-        addProfile(profiles, author, reviewer, "author", coiPaper, "possible")
+        addProfile(profiles, author, reviewer, "author", coiPaper, category)
         //For reviewer of the paper
-        addProfile(profiles, reviewer, author, "reviewer", coiPaper, "possible")
+        addProfile(profiles, reviewer, author, "reviewer", coiPaper, category)
     })
-    console.log(profiles)
 }
 
-const buildProfileInst = (data, profiles) => {
+const buildProfileInst = (data, profiles, category) => {
     data.map((coiPaper) => {
-        if (coiPaper.violation.type === "past_institutional_violation"){
-            handleProfileInstPast(coiPaper, profiles);
+        if (category === "positive"){
+            handleProfileInstPositive(coiPaper, profiles);
         }
-        else if (coiPaper.violation.type === "cur_institutional_violation"){
-            handleProfileInstCur(coiPaper, profiles);
+        else if (category === "possible"){
+            handleProfileInstPossible(coiPaper, profiles);
         }
     });
-    console.log(profiles)
 }
 
-const handleProfileInstPast = (coiPaper, profiles) => {
+const handleProfileInstPositive = (coiPaper, profiles, category) => {
     const violations = coiPaper.violation.history
     for (let i = 0; i < violations.length; i++)
     {
@@ -82,13 +68,13 @@ const handleProfileInstPast = (coiPaper, profiles) => {
         const name2 = violations[i].name2
         const violator1 = findProfileByName(coiPaper.reviewer, name1) !== -1 ? findProfileByName(coiPaper.reviewer, name1, 'reviewer') : findProfileByName(coiPaper.author, name1, 'author');
         const violator2 = findProfileByName(coiPaper.reviewer, name2) !== -1 ? findProfileByName(coiPaper.reviewer, name2, 'reviewer') : findProfileByName(coiPaper.author, name2, 'author');
-        addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, "possible")
-        addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, "possible")
+        addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, "positive")
+        addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, "positive")
     }
     
 }
 
-const handleProfileInstCur = (coiPaper, profiles) => {
+const handleProfileInstPossible = (coiPaper, profiles, category) => {
     const violations = coiPaper.violation.history
     const name1 = violations[0].name
     const name2 = violations[1].name
@@ -113,10 +99,23 @@ const coiFunction = {
 
 export const buildProfiles = (data) => {
     const profiles = {};
-    data.map((x) => {
-        let key = x.type;
-        coiFunction[key].build(x.coi_data, profiles)
-    })
+    Object.keys(data.positive).forEach((key) => {
+        const coiData = data.positive[key]
+        let type = coiData.type;
 
+        coiFunction[type].build(coiData.coi_data, profiles, 'positive')
+    });
+
+
+    Object.keys(data.possible).forEach((key) => {
+        const coiData = data.possible[key]
+        let type = coiData.type;
+
+        coiFunction[type].build(coiData.coi_data, profiles, 'possible')
+    });
+
+
+    
+    return profiles;
     
 }

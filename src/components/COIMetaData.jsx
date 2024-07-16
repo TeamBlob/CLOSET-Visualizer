@@ -1,6 +1,5 @@
 import { useLocation } from "react-router-dom";
 import { buildGraph } from "../scripts/graph"
-import GraphUI from "./GraphUI"
 import SidePanel from "./SidePanel";
 import { useState, useEffect } from "react";
 
