@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { buildGraph } from "../scripts/graph"
+import { constructUIJson } from "../scripts/violation_ui_structure";
 import SidePanel from "./SidePanel";
 import { useState, useEffect } from "react";
 
@@ -9,17 +10,20 @@ export default function COIMetaData(){
     const location = useLocation();
     const state  = location.state;
     const [open, setOpen] = useState(false)
-
+    const [graph, setGraph] = useState({});
+    const [violation, setViolation] = useState({});
     if (!state) {
         // Handle case when jsonData is null or undefined
         return <div>No data available</div>;
     } 
     const coi_data = state.coi_data;
-    const [graph, setGraph] = useState({});
+
+    
 
     useEffect(() => {
         if (state) {
             setGraph(buildGraph(state.coi_data));
+            setViolation(constructUIJson(state.coi_data, state.type))
         }
     }, [state]); // Only run when state changes
 
@@ -85,7 +89,7 @@ export default function COIMetaData(){
                 </div>
             </main>
             <main>
-                <SidePanel open={open} setOpen={setOpen}graph={graph}/>
+                <SidePanel open={open} setOpen={setOpen} graph={graph} violation={violation} />
             </main>
         </div>
     )

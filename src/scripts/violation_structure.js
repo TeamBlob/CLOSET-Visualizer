@@ -157,18 +157,18 @@ const handleInstSchema = (data) => {
     // Regular Expression
     const normalRegex = /[\w\s,\{\}\']+/;
     const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
-    const detailRegex = new RegExp(`\\(${emailRegex.source}, ${normalRegex.source}\\)`);
+    const detailRegex = new RegExp(`\(${emailRegex.source}, ${normalRegex.source}\)`);
 
     const tempList = [] 
     for (const match of data) {
         const matchedData = match[0].trim();
 
         const key = crypto.randomUUID();
-        const name = matchedData.match(normalRegex)[0];
+        const name = matchedData.match(normalRegex)[0].trim();
         const detail = matchedData.match(detailRegex)[0].replace(/[()]/g, '').split(',').map(detail => detail.trim());
+        
         const email = detail[0];
-        const institute = detail[1];
-    
+        const institute = detail[1].replace(/[^\w\s]/g, '');
         const jsonData = {
             "key": key,
             "name": name,

@@ -3,7 +3,6 @@ import Tooltip from "./ToolTips"
 
 export default function Dashboard({dashboardData})
 {
-    console.log(dashboardData)
     return (
         <div>
             <header className="bg-white shadow">
@@ -26,7 +25,7 @@ export default function Dashboard({dashboardData})
                                 </Tooltip>
                             </div>
                             <div className="mt-6 mr-6 mb-6 ml-6">
-                                <Sub_List coi_data={sub_coi.coi_data} />
+                                <Sub_List coi_data={sub_coi.coi_data} type={sub_coi.type} />
                             </div>
                         </div>
                     ))}
