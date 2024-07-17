@@ -23,7 +23,7 @@ export const similar = (list1, list2) => {
             const score = calculateSimilarityScore(item1, item2);
             if (score > maxScore) {
                 maxScore = score;
-                mostSimilarPair = { item1, item2 };
+                mostSimilarPair = [ item1, item2 ];
             }
         });
     });

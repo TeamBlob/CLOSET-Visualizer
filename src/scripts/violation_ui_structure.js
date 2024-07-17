@@ -6,8 +6,9 @@ const buildPastSub = (data) => {
     const reviewerName = data.reviewer[0].name
     const recent_venue = data.violation.history[0].recent_venue
     const submission = data.violation.history[0].submission_time
-    console.log(data.violation)
+    
     const json = {
+        type: 'pastsub',
         header: ['Author', 'Reviewer', 'Recent Venue', 'Submission'],
         dataset: [
             {
@@ -29,6 +30,7 @@ const buildPositiveInst = (data) => {
     const violations = data.violation.history
     const json = {
         header: ['Author', 'Reviewer', 'Institution'],
+        type: 'positive_inst',
         dataset: []
     }
 
@@ -42,14 +44,14 @@ const buildPositiveInst = (data) => {
         const author = getNameByType(violator1, violator2, 'author');
         const reviewer = getNameByType(violator1, violator2, 'reviewer');
         const institution = violator1.profile.institute
-        const data = {
+        const reason = {
             authorName: author.name,
             reviewerName: reviewer.name,
             institution: institution
         }
-        json.dataset.push(data)
+        json.dataset.push(reason)
     }
-    return data
+    return json
 }
 
 const buildPossibleInst = (data) => {
@@ -66,6 +68,7 @@ const buildPossibleInst = (data) => {
 
     const json = {
         header: ['Author', 'Institutions', 'Reviewer', 'Institutions', 'Similarity'],
+        type: 'possible_inst',
         dataset: [
             {
                 authorName: author.name,
@@ -88,6 +91,7 @@ const buildMetaPC = (data) => {
 
     const json = {
         header: ['Author', 'Reviewer', 'History', 'Comments'],
+        type: 'metapc',
         dataset: [
             {
                 authorName: author,
@@ -123,5 +127,5 @@ const coiFunction = {
 }
 
 export const constructUIJson = (data, type) => {
-    return coiFunction[type].build(data)
+    return coiFunction[type].build(data);
 }
