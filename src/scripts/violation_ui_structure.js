@@ -94,7 +94,7 @@ const buildMetaPC = (data) => {
         type: 'metapc',
         dataset: [
             {
-                authorName: author,
+                authorName: author.name,
                 reviewerName: reviewer.name,
                 history: history,
                 comment: comment

@@ -32,7 +32,7 @@ export default function SidePanel({ open, setOpen, graph, violation }) {
                 leaveFrom="translate-x-0"
                 leaveTo="translate-x-full"
               >
-                <Dialog.Panel className="pointer-events-auto relative w-screen max-w-xl">
+                <Dialog.Panel className="pointer-events-auto relative w-screen max-w-xxl">
                   <Transition.Child
                     as={Fragment}
                     enter="ease-in-out duration-500"
