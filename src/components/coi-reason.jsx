@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 
 export default function ReasonPanel({violation}) {
+
   const PositiveInstReason = (reason) => {
     return (
         <tr className="hover:bg-gray-100">
@@ -48,23 +49,59 @@ export default function ReasonPanel({violation}) {
           </tr>
       );
   }
+
+  const HistoryTable = ({ history }) => {
+    return (
+      
+        <tbody>
+          {history.flags.map((record, index) => (
+            <tr key={record.key} className="hover:bg-gray-100">
+              {index === 0 && (
+                <td rowSpan={history.flags.length} className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">{history.name}</td>
+              )}
+              <td className="px-6 py-4 text-sm text-gray-800">{record[0]}</td>
+              <td className="px-6 py-4 text-sm text-gray-800">{record[1]}</td>
+            </tr>
+          ))}
+        </tbody>
+      
+    );
+  };
+
   const MetaPCReason = (reason) => {
-    console.log(reason.history)
     return (
         <tr className="hover:bg-gray-100">
             <td className="px-6 py-4 text-sm font-medium text-gray-800">{reason.authorName}</td>
             <td className="px-6 py-4 text-sm font-medium text-gray-800">{reason.reviewerName}</td>
-            <td className="px-6 py-4 text-sm text-gray-800">{                <ul>
+            <td>  
+              <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
+                <thead>
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Name</th>
+                    <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Year</th>
+                    <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Count</th>
+                  </tr>
+                </thead>
                   {reason.history.map(data => (
-                    <li className="list-item-with-dash" key={data}>
-                      {data[0]}
-                    </li>
+                    <HistoryTable history={data}/>
                   ))}
-                </ul>}</td>
+              </table>
+              </td>
             <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal">{reason.comment}</td>
         </tr>
     );
-}
+  }
+
+  const PastSubReason = (reason) => {
+    return (
+        <tr className="hover:bg-gray-100">
+            <td className="px-6 py-4 text-sm font-medium text-gray-800">{reason.authorName}</td>
+            <td className="px-6 py-4 text-sm font-medium text-gray-800">{reason.reviewerName}</td>
+            <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal">{reason.recent_venue}</td>
+            <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal">{reason.submission}</td>
+        </tr>
+    );
+  }
 
 
 
@@ -78,6 +115,9 @@ export default function ReasonPanel({violation}) {
       },
       "metapc": {
         build: MetaPCReason
+      },
+      "pastsub": {
+        build: PastSubReason
       }
     }
   return (
@@ -86,14 +126,15 @@ export default function ReasonPanel({violation}) {
         <div className="p-1.5 min-w-full inline-block align-middle">
           <div className="overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead>
+              <thead >
                 <tr>
                     {violation.header.map(header => (
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">{header}</th>
                     ))}
                   </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 border border-gray-300">
+
                 {violation.dataset.map(data => (
                         coiFunction[violation.type].build(data)
                   ))
