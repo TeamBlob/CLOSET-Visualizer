@@ -12,5 +12,5 @@
 ## How to start developing
 
 1. At your terminal, navigate to the root folder
-2. Run `npm run install:all` to install all the necessary modules
+2. Run `npm install:all` to install all the necessary modules
 3. At the root folder, run `npm run dev`

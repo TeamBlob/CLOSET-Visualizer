@@ -7,7 +7,7 @@ export const buildGraph = (data) => {
     }
     get_all_nodes(graph, data)
     build_default_edges(graph, data)
-    console.log(data)
+
     if (data.violation.type === "positive_inst_violation"){
         buildPositiveInstGraph(graph, data);
     }
@@ -98,7 +98,6 @@ const buildPositiveInstGraph = (graph, data) => {
 const buildPossibleInstGraph = (graph, data) => {
 
     const violations = data.violation.history
-    console.log(violations)
     const name1 = violations[0].name
     const name2 = violations[1].name
     const key1 = findKeyByName(data.reviewer, name1) !== -1 ? findKeyByName(data.reviewer, name1) : findKeyByName(data.author, name1);
@@ -118,7 +117,7 @@ const build_possible_violation_graph = (graph, data) => {
         from: reviewerKey, to: authorKey
     }
     graph.edges.push(json)
-    console.log(graph)
+
 }
 
 const build_past_sub_graph = (graph, data) => {
@@ -129,5 +128,5 @@ const build_past_sub_graph = (graph, data) => {
         from: reviewerKey, to: authorKey
     }
     graph.edges.push(json)
-    console.log(graph)
+
 }

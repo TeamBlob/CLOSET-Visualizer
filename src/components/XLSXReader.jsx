@@ -87,7 +87,6 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
         const coi_data = coiType.coi_function(metadata)
         const positive = coi_data[0];
         const possible = coi_data[1];
-        console.log('coi_data',coi_data)
         // Populating Positive COI Dataset
         if (coiType.key in COI_DASHBOARD.positive)
         {
@@ -125,7 +124,6 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
             }
             COI_DASHBOARD.possible[coiType.key] = possibleJson
         }
-        console.log(COI_DASHBOARD)
     }
 
 

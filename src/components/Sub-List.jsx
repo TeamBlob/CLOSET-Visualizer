@@ -1,13 +1,13 @@
   import { Link } from "react-router-dom"
 
-  export default function Sub_List( {coi_data} ) {
+  export default function Sub_List( {coi_data, type} ) {
 
     return (
       <ul role="list" className="divide-y divide-gray-100">
         {coi_data.length === 0 && "No COI data retrieved"}
         {coi_data.map((data) => (
           <li key={data.key} className="flex justify-between gap-x-6 py-5">
-            <Link to={{ pathname: `/coidetails/${data.pageId}`}} state= {{ coi_data: data }} className="flex min-w-0 gap-x-4" >
+            <Link to={{ pathname: `/coidetails/${data.pageId}`}} state= {{ coi_data: data, type: type }} className="flex min-w-0 gap-x-4" >
               <div className="flex min-w-0 gap-x-4">
               <div className="min-w-0 flex-auto">
                   <p className="text-sm text-xs leading-6 text-gray-400">paper id</p>
