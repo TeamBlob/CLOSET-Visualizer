@@ -7,6 +7,7 @@ const navigation = [
   { name: 'Upload File', href: '/', current: true },
   { name: 'Possible Violation', href: '/possible', current: false },
   { name: 'Positive Violation', href: '/positive', current: false },
+  { name: 'Profile', href: '/profile', current: false },
 ]
 
 function classNames(...classes) {
