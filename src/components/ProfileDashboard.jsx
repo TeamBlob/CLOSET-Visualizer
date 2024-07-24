@@ -1,9 +1,7 @@
-import Sub_List from "./Sub-List"
-import Tooltip from "./ToolTips"
+import { Link } from "react-router-dom"
 
 export default function ProfileDashboard({profileData})
 {
-    console.log(profileData)
     return (
         <div>
             <header className="bg-white shadow">
@@ -26,13 +24,18 @@ export default function ProfileDashboard({profileData})
                         <tbody className="divide-y divide-gray-200 border border-gray-300">
                             {
                                 Object.values(profileData).map((pro) => (
+                                   
                                     <tr key={pro.key} className="hover:bg-gray-100">
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">{pro.name}</td>
+                                        <Link to={{ pathname: `/profiledetails/${pro.key}`}} state= {{ profile: pro }} className="flex min-w-0 gap-x-4" >
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">{pro.name}</td>
+                                        </Link>
                                         <td className="px-6 py-4 text-sm text-gray-800">{pro.email}</td>
                                         <td className="px-6 py-4 text-sm text-gray-800">{pro.violator.possible.length}</td>
                                         <td className="px-6 py-4 text-sm text-gray-800">{pro.violator.positive.length}</td>
                                         <td className="px-6 py-4 text-sm font-medium text-gray-800">{pro.violator.positive.length + pro.violator.possible.length}</td>
+                                        
                                     </tr>
+                                    
                                 ))
                             }
 

@@ -8,6 +8,7 @@ import COIMetaData from './components/COIMetaData'
 import GraphUI from './components/GraphUI'
 import XLSXReader from './components/XLSXReader'
 import ProfileDashboard from './components/ProfileDashboard'
+import ProfileDetails from './components/ProfileDetails'
 
 
 
@@ -41,6 +42,7 @@ function App() {
         </>
       }
       <Route path='/coidetails/:pageid' element={<COIMetaData/>}></Route>
+      <Route path='/profiledetails/:profilekey' element={<ProfileDetails/>}></Route>
       <Route path='/GraphUI' element={<GraphUI />}></Route>
     </Routes>
     </>

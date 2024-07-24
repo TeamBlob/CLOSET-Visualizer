@@ -21,6 +21,7 @@ export default function COIMetaData(){
     
 
     useEffect(() => {
+        console.log(state)
         if (state) {
             setGraph(buildGraph(state.coi_data));
             setViolation(constructUIJson(state.coi_data, state.type))
