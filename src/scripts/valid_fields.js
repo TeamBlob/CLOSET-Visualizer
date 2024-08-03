@@ -9,7 +9,7 @@ const meta_pc_fields = ['author', 'metareviewers', 'dblp_of_metareviewers', 'pap
     'coauthorship_during_last_3_years', 'coauthorship_during_last_10_years', 
     'coauthorship_count_in_last_10_years', 'coauthorship_history', 'comments']
 
-const allValidFields = [['pastsub', past_sub_fields], ['inst', inst_fields], ['meta_pc', meta_pc_fields]]
+const allValidFields = [['past_sub', past_sub_fields], ['inst', inst_fields], ['meta_pc', meta_pc_fields]]
 
 const processFields = (inputString) => {
     // Lowercase the input string

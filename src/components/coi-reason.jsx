@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 
 export default function ReasonPanel({violation}) {
+  console.log(violation)
 
   const PositiveInstReason = (reason) => {
     return (
@@ -113,10 +114,10 @@ export default function ReasonPanel({violation}) {
       "possible_inst": {
         build: PossibleInstReason
       },
-      "metapc": {
+      "meta_pc": {
         build: MetaPCReason
       },
-      "pastsub": {
+      "past_sub": {
         build: PastSubReason
       }
     }

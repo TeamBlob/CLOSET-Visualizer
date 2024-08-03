@@ -1,38 +1,29 @@
 import { Card, Typography } from "@material-tailwind/react";
+import { Link } from "react-router-dom"
+
+
+const TABLE_HEAD = ["Paper ID", "Role", "Type", ""];
  
-const TABLE_HEAD = ["Name", "Job", "Employed", ""];
- 
-const TABLE_ROWS = [
-  {
-    name: "John Michael",
-    job: "Manager",
-    date: "23/04/18",
-  },
-  {
-    name: "Alexa Liras",
-    job: "Developer",
-    date: "23/04/18",
-  },
-  {
-    name: "Laurent Perrier",
-    job: "Executive",
-    date: "19/09/17",
-  },
-  {
-    name: "Michael Levi",
-    job: "Developer",
-    date: "24/12/08",
-  },
-  {
-    name: "Richard Gran",
-    job: "Manager",
-    date: "04/10/21",
-  },
-];
- 
-export function DefaultTable() {
+export function ViolationTable({type, data}) {
+  console.log(type, data, data.length > 0 && data[0].coi_paper.pageId)
+  if (data.length === 0) {
+    // Handle case when location.state is null or undefined
+    return (
+      <Card className="h-full w-full overflow-scroll">
+        <div className="flex flex-col items-center justify-center space-y-4 md:flex-row md:space-y-0 md:space-x-8"> 
+        <Typography variant="big" color="blue-gray" className="font-bold">There is no {type} violation recorded for this profile.</Typography>
+      </div>
+      </Card>
+      
+    )
+
+}
+
   return (
     <Card className="h-full w-full overflow-scroll">
+      <div className="flex flex-col items-center justify-center space-y-4 md:flex-row md:space-y-0 md:space-x-8"> 
+        <Typography variant="big" color="blue-gray" className="font-bold">{type} Violation</Typography>
+      </div>
       <table className="w-full min-w-max table-auto text-left">
         <thead>
           <tr>
@@ -53,19 +44,19 @@ export function DefaultTable() {
           </tr>
         </thead>
         <tbody>
-          {TABLE_ROWS.map(({ name, job, date }, index) => {
-            const isLast = index === TABLE_ROWS.length - 1;
+          {data.length > 0 && data.map((violation, index) => {
+            const isLast = index === data.length - 1;
             const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
  
             return (
-              <tr key={name}>
+              <tr key={violation.coi_paper.key}>
                 <td className={classes}>
                   <Typography
                     variant="small"
                     color="blue-gray"
                     className="font-normal"
                   >
-                    {name}
+                    {violation.coi_paper.pageId}
                   </Typography>
                 </td>
                 <td className={classes}>
@@ -74,7 +65,7 @@ export function DefaultTable() {
                     color="blue-gray"
                     className="font-normal"
                   >
-                    {job}
+                    {violation.role}
                   </Typography>
                 </td>
                 <td className={classes}>
@@ -83,19 +74,20 @@ export function DefaultTable() {
                     color="blue-gray"
                     className="font-normal"
                   >
-                    {date}
+                    {violation.type}
                   </Typography>
                 </td>
                 <td className={classes}>
-                  <Typography
-                    as="a"
-                    href="#"
-                    variant="small"
-                    color="blue-gray"
-                    className="font-medium"
-                  >
-                    Edit
-                  </Typography>
+                  <Link to={{ pathname: `/coidetails/${violation.coi_paper.key}`}} state= {{ coi_data: violation.coi_paper, type: violation.type}} className="flex min-w-0 gap-x-4" >
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-medium"
+                    >
+                      View
+                    </Typography>
+                  </Link>
+
                 </td>
               </tr>
             );

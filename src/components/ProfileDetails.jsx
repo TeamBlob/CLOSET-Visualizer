@@ -1,16 +1,25 @@
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { DefaultTable } from "./ProfileViolationDetails";
+import { ViolationTable } from "./ProfileViolationDetails";
 
 export default function ProfileDetails() {
     const location = useLocation();
     const [profile, setProfile] = useState({});
+    const [positive, setPositive] = useState([]);
+    const [possible, setPossible] = useState([]);
 
     useEffect(() => {
-        if (location.state) {
+        if (location.state.profile) {
             setProfile(location.state.profile);
+            if (location.state.profile.violator){
+                setPositive(location.state.profile.violator.positive)
+                setPossible(location.state.profile.violator.possible)
+            }
+            console.log('location', location.state.profile);
+
+
         }
-        console.log(profile);
+        
     }, [location.state]); // Only run when state changes
 
     if (!location.state) {
@@ -28,16 +37,38 @@ export default function ProfileDetails() {
             <div className="flex flex-col min-h-screen p-4">
                 {/* Circle Section */}
                 <div className="flex flex-col items-center justify-center space-y-4 md:flex-row md:space-y-0 md:space-x-8">
-                    {Array(4).fill().map((_, index) => (
-                        <div key={index} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
-                            <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
-                                Center
-                            </div>
-                            <div className="absolute bottom-2 text-xs md:text-base text-gray-900">
-                                Bottom
-                            </div>
+                    <div key={1} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
+                        <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
+                            {profile.author}
                         </div>
-                    ))}
+                        <div className="absolute bottom-2 text-xs md:text-base text-gray-900">
+                            Author
+                        </div>
+                    </div>
+                    <div key={2} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
+                        <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
+                            {profile.reviewer}
+                        </div>
+                        <div className="absolute bottom-2 text-xs md:text-base text-gray-900">
+                            Review
+                        </div>
+                    </div>
+                    <div key={3} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
+                        <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
+                            {positive.length}
+                        </div>
+                        <div className="absolute bottom-2 text-xs md:text-base text-gray-900">
+                            Positive
+                        </div>
+                    </div>
+                    <div key={4} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
+                        <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
+                            {possible.length}
+                        </div>
+                        <div className="absolute bottom-2 text-xs md:text-base text-gray-900">
+                            Possible
+                        </div>
+                    </div>
                 </div>
 
                 {/* Separator Line */}
@@ -46,10 +77,10 @@ export default function ProfileDetails() {
                 {/* Tables Section */}
                 <div className="flex flex-col md:flex-row md:space-x-8 w-full flex-grow gap-4">
                     <div className="flex-1">
-                        <DefaultTable />
+                        <ViolationTable type="Positive" data={positive}/>
                     </div>
                     <div className="flex-1">
-                        <DefaultTable />
+                        <ViolationTable type="Possible" data={possible}/>
                     </div>
                 </div>
             </div>
