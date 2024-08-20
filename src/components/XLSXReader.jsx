@@ -31,7 +31,7 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
             description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
             coi_function: buildMetaPC
         },
-        "pastsub": {
+        "past_sub": {
             key: crypto.randomUUID(),
             name: "Past Sub", 
             href: "PastSubCOI",

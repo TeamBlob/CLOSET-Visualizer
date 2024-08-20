@@ -8,7 +8,7 @@ const buildPastSub = (data) => {
     const submission = data.violation.history[0].submission_time
     
     const json = {
-        type: 'pastsub',
+        type: 'past_sub',
         header: ['Author', 'Reviewer', 'Recent Venue', 'Submission'],
         dataset: [
             {
@@ -91,7 +91,7 @@ const buildMetaPC = (data) => {
 
     const json = {
         header: ['Author', 'Reviewer', 'History', 'Comments'],
-        type: 'metapc',
+        type: 'meta_pc',
         dataset: [
             {
                 authorName: author.name,
@@ -121,7 +121,7 @@ const coiFunction = {
     "meta_pc" : {
         build: buildMetaPC
     },
-    "pastsub": {
+    "past_sub": {
         build: buildPastSub
     }
 }

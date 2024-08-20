@@ -5,6 +5,8 @@ const buildTempProfile = (name, email) =>{
         key: crypto.randomUUID(),
         name: name,
         email: email,
+        author: 0,
+        reviewer: 0,
         violator: {
             possible: [],
             positive: []
@@ -12,11 +14,12 @@ const buildTempProfile = (name, email) =>{
     }
 }
 
-const addProfile = (profiles, person, violator, role, coiPaper, violation_category) => {
+const addProfile = (profiles, person, violator, role, coiPaper, type, violation_category) => {
     // building the coi violator schema
     let violatorSchema = {
         violator: violator.email,
         role: role,
+        type: type,
         coi_paper: coiPaper, 
     };
     
@@ -25,6 +28,10 @@ const addProfile = (profiles, person, violator, role, coiPaper, violation_catego
         profiles[person.email] = buildTempProfile(person.name, person.email);
     // add coi violation to person profile
     profiles[person.email].violator[violation_category].push(violatorSchema);
+    if (role === 'author')
+        profiles[person.email].author += 1
+    else
+        profiles[person.email].reviewer += 1
 }
 
 const buildProfilePastSub = (data, profiles, category) => {
@@ -32,9 +39,9 @@ const buildProfilePastSub = (data, profiles, category) => {
         let author = coiPaper.author[0];
         let reviewer = coiPaper.reviewer[0];
         //For authors of the paper
-        addProfile(profiles, author, reviewer, "author", coiPaper, category)
+        addProfile(profiles, author, reviewer, "author", coiPaper, 'past_sub', category)
         //For reviewer of the paper
-        addProfile(profiles, reviewer, author, "reviewer", coiPaper, category)
+        addProfile(profiles, reviewer, author, "reviewer", coiPaper, 'past_sub', category)
     })
 }
 const buildProfileMetaPC = (data, profiles, category) => {
@@ -43,9 +50,9 @@ const buildProfileMetaPC = (data, profiles, category) => {
         let reviewer = coiPaper.reviewer[0];
 
         //For authors of the paper
-        addProfile(profiles, author, reviewer, "author", coiPaper, category)
+        addProfile(profiles, author, reviewer, "author", coiPaper, 'meta_pc', category)
         //For reviewer of the paper
-        addProfile(profiles, reviewer, author, "reviewer", coiPaper, category)
+        addProfile(profiles, reviewer, author, "reviewer", coiPaper, 'meta_pc', category)
     })
 }
 
@@ -68,8 +75,8 @@ const handleProfileInstPositive = (coiPaper, profiles, category) => {
         const name2 = violations[i].name2
         const violator1 = findProfileByName(coiPaper.reviewer, name1) !== -1 ? findProfileByName(coiPaper.reviewer, name1, 'reviewer') : findProfileByName(coiPaper.author, name1, 'author');
         const violator2 = findProfileByName(coiPaper.reviewer, name2) !== -1 ? findProfileByName(coiPaper.reviewer, name2, 'reviewer') : findProfileByName(coiPaper.author, name2, 'author');
-        addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, "positive")
-        addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, "positive")
+        addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "positive")
+        addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, 'inst', "positive")
     }
     
 }
@@ -81,8 +88,8 @@ const handleProfileInstPossible = (coiPaper, profiles, category) => {
     const violator1 = findProfileByName(coiPaper.reviewer, name1) !== -1 ? findProfileByName(coiPaper.reviewer, name1, 'reviewer') : findProfileByName(coiPaper.author, name1, 'author');
     const violator2 = findProfileByName(coiPaper.reviewer, name2) !== -1 ? findProfileByName(coiPaper.reviewer, name2, 'reviewer') : findProfileByName(coiPaper.author, name2, 'author');
         
-    addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, "possible")
-    addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, "possible")
+    addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "possible")
+    addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, 'inst', "possible")
 }
 
 const coiFunction = {
@@ -92,7 +99,7 @@ const coiFunction = {
     "meta_pc" : {
         build: buildProfileMetaPC
     },
-    "pastsub": {
+    "past_sub": {
         build: buildProfilePastSub
     }
 }

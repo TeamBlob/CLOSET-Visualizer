@@ -7,6 +7,8 @@ import {Routes, Route} from 'react-router-dom'
 import COIMetaData from './components/COIMetaData'
 import GraphUI from './components/GraphUI'
 import XLSXReader from './components/XLSXReader'
+import ProfileDashboard from './components/ProfileDashboard'
+import ProfileDetails from './components/ProfileDetails'
 
 
 
@@ -31,7 +33,16 @@ function App() {
           }
         </>
       }
+      {
+        Object.keys(profiles).length > 0 && 
+        <>
+          { 
+            <Route key={crypto.randomUUID()} path='/profile' element={<ProfileDashboard profileData={profiles} />}></Route>
+          }
+        </>
+      }
       <Route path='/coidetails/:pageid' element={<COIMetaData/>}></Route>
+      <Route path='/profiledetails/:profilekey' element={<ProfileDetails/>}></Route>
       <Route path='/GraphUI' element={<GraphUI />}></Route>
     </Routes>
     </>
