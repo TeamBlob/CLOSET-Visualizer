@@ -6,15 +6,12 @@ import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_struc
 import { buildProfiles } from "../scripts/profile";
 import { concatList } from "../scripts/common_script"
 
-const XLSXReader = ({setDashboard, setProfiles}) => {
+const XLSXReader = ({setDashboard, setProfiles, navigation,setNavigation}) => {
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
     const coiFileNameRegexStr = `(All-Coi|Coi)${coiTypeRegex}`
     const vaildFileRegexStr = "[A-Za-z0-9 -_.,()\[\]]*"
     const filenameRegex = new RegExp(`^(${coiFileNameRegexStr}${vaildFileRegexStr})`, 'i') // Regex for accepting files into the program
-    const COI_DASHBOARD = {
-        'positive': {},
-        'possible': {},
-    }
+    const COI_DASHBOARD = {}
     
     const coiTypesDict = {
         "inst": {
@@ -22,6 +19,7 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
             href: "InstituionalCOI",
             name: "Instituional COI Violation",
             description: "It contains (potential) COI violation due to institutional match.",
+            violation: ['positive', 'possible'],
             coi_function: buildInst
         },
         "meta_pc" : {
@@ -29,6 +27,7 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
             href: "PossibleCOI",
             name: "Possible COI Violation", 
             description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
+            violation: ['positive', 'possible'],
             coi_function: buildMetaPC
         },
         "past_sub": {
@@ -36,6 +35,7 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
             name: "Past Sub", 
             href: "PastSubCOI",
             description: "COI violations due to published papers that appear in DBLP",
+            violation: ['positive'],
             coi_function: buildPastSub
         }
     }
@@ -77,9 +77,23 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
             }
         });
         const profile = buildProfiles(COI_DASHBOARD);
+        console.log(COI_DASHBOARD)
         setProfiles(profile);
         setDashboard(COI_DASHBOARD);
+        
+        updateShowProperty('Possible Violation', COI_DASHBOARD?.possible ?? false);
+        updateShowProperty('Positive Violation', COI_DASHBOARD?.positive ?? false);
+        updateShowProperty('Profile', true)        
     }
+
+    const updateShowProperty = (name, show) => {
+        setNavigation(prevNavigation =>
+            prevNavigation.map(item =>
+            item.name === name ? { ...item, show } : item
+            )
+        );
+    };
+    
     const constructSubCOIJson = (type, metadata) =>{
         // retrieve coiType json from coiTypesDict dictionary
         const coiType = coiTypesDict[type.toLowerCase()]
@@ -87,42 +101,31 @@ const XLSXReader = ({setDashboard, setProfiles}) => {
         const coi_data = coiType.coi_function(metadata)
         const positive = coi_data[0];
         const possible = coi_data[1];
-        // Populating Positive COI Dataset
-        if (coiType.key in COI_DASHBOARD.positive)
-        {
-            const orginal = COI_DASHBOARD.positive[coiType.key].coi_data
-
-            COI_DASHBOARD.positive[coiType.key].coi_data = concatList(orginal, positive.coi_data)
-        }
-        else {
-            const positiveJson = {
-                key: coiType.key,
-                name: coiType.name,
-                type: type.toLowerCase(),
-                description: coiType.description,
-                href: coiType.href,
-                coi_data: positive.coi_data
-            }
-            COI_DASHBOARD.positive[coiType.key] = positiveJson
-        }
         
-        // Populating Possible COI Dataset
-        if (coiType.key in COI_DASHBOARD.possible)
-        {
-            const orginal = COI_DASHBOARD.possible[coiType.key].coi_data
+        coiType.violation.includes('positive') && populateCOIDashboard(coiType, type, 'positive', positive.coi_data);
+        coiType.violation.includes('possible') && populateCOIDashboard(coiType, type, 'possible', possible.coi_data);
+    }
 
-            COI_DASHBOARD.possible[coiType.key].coi_data = concatList(orginal, possible.coi_data)
+    const populateCOIDashboard = (coiType, type, violationType, coiData) =>{
+        if (!(violationType in COI_DASHBOARD)){
+            COI_DASHBOARD[violationType] = {}
+        }
+
+        if (coiType.key in COI_DASHBOARD[violationType])
+        {
+            const orginal = COI_DASHBOARD[violationType][coiType.key].coi_data
+            COI_DASHBOARD[violationType][coiType.key].coi_data = concatList(orginal, coiData)
         }
         else {
-            const possibleJson = {
+            const json = {
                 key: coiType.key,
                 name: coiType.name,
                 type: type.toLowerCase(),
                 description: coiType.description,
                 href: coiType.href,
-                coi_data: possible.coi_data
+                coi_data: coiData
             }
-            COI_DASHBOARD.possible[coiType.key] = possibleJson
+            COI_DASHBOARD[violationType][coiType.key] = json
         }
     }
 
