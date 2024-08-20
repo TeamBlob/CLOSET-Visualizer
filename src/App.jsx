@@ -15,13 +15,21 @@ import ProfileDetails from './components/ProfileDetails'
 function App() {
   const [coiDashboard, setDashboard] = useState({});
   const [profiles, setProfiles] = useState({});
+  const navigationHeader = [
+    { name: 'Upload File', href: '/', current: true, show: true },
+    { name: 'Possible Violation', href: '/possible', current: false, show: false  },
+    { name: 'Positive Violation', href: '/positive', current: false, show: false  },
+    { name: 'Profile', href: '/profile', current: false, show: false  },
+  ];
+  const [navigation, setNavigation] = useState(navigationHeader);
+
   return (
     <>
-    <Header/>
+    <Header navigation={navigation} setNavigation={setNavigation}/>
     
     
     <Routes>
-      <Route path='/' element={<XLSXReader setDashboard={setDashboard} setProfiles={setProfiles}/>}></Route>
+      <Route path='/' element={<XLSXReader setDashboard={setDashboard} setProfiles={setProfiles} navigation={navigation}setNavigation={setNavigation}/>}></Route>
       {
         Object.keys(coiDashboard).length > 0 && 
         <>
