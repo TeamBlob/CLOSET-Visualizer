@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
-import FileInput from './FileInput';
+import UploadFileComponent from './UploadFile'
 import { checkFields } from '../scripts/valid_fields'
 import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
 import { buildProfiles } from "../scripts/profile";
 import { concatList } from "../scripts/common_script"
+import UploadRadioComponent from './UploadRadio';
 
-const XLSXReader = ({setDashboard, setProfiles, navigation,setNavigation}) => {
+const XLSXReader = ({setDashboard, setProfiles, setNavigation}) => {
+
+    const [selectedOption, setSelectedOption] = useState("published");
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
     const coiFileNameRegexStr = `(All-Coi|Coi)${coiTypeRegex}`
     const vaildFileRegexStr = "[A-Za-z0-9 -_.,()\[\]]*"
@@ -40,11 +43,30 @@ const XLSXReader = ({setDashboard, setProfiles, navigation,setNavigation}) => {
         }
     }
     
+    const handleFileSelection = (files, isAll) => {
+        // Convert FileList to an array
+        const validFiles = Array.from(files).filter((file) =>
+            isAll ? file.name.startsWith("All-") && file.name.endsWith(".xlsx") 
+                  : !file.name.startsWith("All-") && file.name.endsWith(".xlsx")
+        );
+    
+        if (validFiles.length > 0) {
+            console.log("Valid files selected:", validFiles);
+            return validFiles
+        } else {
+            alert("Please select a file with the correct naming convention and .xlsx extension.");
+            return validFiles
+        }
+    }
+    
 
     const handleFileUpload = (files) => {
-        const filesArray = Array.from(files); // Convert FileList to array
+        const filesArray = Array.from(files);
+
+        const validFileArray = handleFileSelection(filesArray, selectedOption !== "published")
+
         Promise.all(
-            filesArray.map((file) => {
+            validFileArray.map((file) => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -131,11 +153,11 @@ const XLSXReader = ({setDashboard, setProfiles, navigation,setNavigation}) => {
 
 
     return (
-        <div>
-        <h2>Upload XLSX Files</h2>
-            <FileInput onChange={handleFileUpload} />
-        </div>
-    );
+    <>
+        <UploadFileComponent handleFileUpload={handleFileUpload} />
+        <UploadRadioComponent selectedOption={selectedOption} setSelectedOption={setSelectedOption}/>
+    </>
+    )
 };
 
 export default XLSXReader;
