@@ -29,7 +29,7 @@ function App() {
     
     
     <Routes>
-      <Route path='/' element={<XLSXReader setDashboard={setDashboard} setProfiles={setProfiles} navigation={navigation}setNavigation={setNavigation}/>}></Route>
+      <Route path='/' element={<XLSXReader setDashboard={setDashboard} setProfiles={setProfiles} setNavigation={setNavigation}/>}></Route>
       {
         Object.keys(coiDashboard).length > 0 && 
         <>
