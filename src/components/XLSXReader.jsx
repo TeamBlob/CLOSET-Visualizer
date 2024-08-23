@@ -20,24 +20,40 @@ const XLSXReader = ({setDashboard, setProfiles, setNavigation}) => {
         "inst": {
             key: crypto.randomUUID(),
             href: "InstituionalCOI",
-            name: "Instituional COI Violation",
-            description: "It contains (potential) COI violation due to institutional match.",
+            name: {
+                "published": "Instituional COI Violation",
+            },
+            description: {
+                "published": "It contains COI violation due to institutional match.",
+            },
             violation: ['positive', 'possible'],
             coi_function: buildInst
         },
         "meta_pc" : {
             key: crypto.randomUUID(),
             href: "PossibleCOI",
-            name: "Possible COI Violation", 
-            description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
+            name: {
+                "unpublished": "History of Collaboration (Unreported COI)",
+                "published": "History of Collaboration"
+            }, 
+            description: {
+                "unpublished": "Contains all unreported COIs",
+                "published": "Contain all co-authorship history of author-assigned reviewer/meta-reviewer pairs."
+            },
             violation: ['positive', 'possible'],
             coi_function: buildMetaPC
         },
         "past_sub": {
             key: crypto.randomUUID(),
-            name: "Past Sub", 
             href: "PastSubCOI",
-            description: "COI violations due to published papers that appear in DBLP",
+            name: {
+                "unpublished": "Past Submission (Unreported COI)",
+                "published": "Past Submission (Reported COI)"
+            }, 
+            description: {
+                "unpublished": "Contains all unreported COIs due to past submissions made by the author-reviewer pairs as coauthors",
+                "published": "Contains all reported COIs due to past submissions made by the author-reviewer pairs as coauthors"
+            },
             violation: ['positive'],
             coi_function: buildPastSub
         }
@@ -141,9 +157,9 @@ const XLSXReader = ({setDashboard, setProfiles, setNavigation}) => {
         else {
             const json = {
                 key: coiType.key,
-                name: coiType.name,
+                name: coiType.name[selectedOption],
                 type: type.toLowerCase(),
-                description: coiType.description,
+                description: coiType.description[selectedOption],
                 href: coiType.href,
                 coi_data: coiData
             }
