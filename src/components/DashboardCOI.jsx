@@ -13,7 +13,7 @@ export default function Dashboard({dashboardData})
             <main>
                 <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                     {Object.keys(dashboardData).length > 0 && Object.values(dashboardData).map((sub_coi) => (
-                        <div key={sub_coi.key}>
+                        <div key={sub_coi.key} className="border-b border-gray-300 pb-6 mb-6">
                             <div className="flex">
                                 <h2 className="text-2xl font-bold tracking-tight text-gray-900">
                                     {sub_coi.name}
