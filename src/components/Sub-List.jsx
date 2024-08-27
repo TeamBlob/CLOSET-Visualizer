@@ -10,7 +10,7 @@ export default function Sub_List({ coi_data, type }) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = coi_data.slice(startIndex, endIndex);
-
+  const totalPages = Math.ceil(coi_data.length / itemsPerPage)
   const onPageChange = (page) => setCurrentPage(page);
 
   return (
@@ -66,15 +66,17 @@ export default function Sub_List({ coi_data, type }) {
           ))}
         </ul>
       </div>
-      <div className="flex overflow-x-auto sm:justify-center">
-        <Pagination
-          layout="table"
-          currentPage={currentPage}
-          totalPages={Math.ceil(coi_data.length / itemsPerPage)}
-          onPageChange={onPageChange}
-          showIcons
-        />
-      </div>
+      {totalPages > 1 && (
+        <div className="flex overflow-x-auto sm:justify-center">
+          <Pagination
+            layout="navigation"
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            showIcons
+          />
+        </div>
+      )}
     </>
   );
 }
