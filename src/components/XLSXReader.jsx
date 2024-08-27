@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
-import FileInput from './FileInput';
+import UploadFileComponent from './UploadFile'
 import { checkFields } from '../scripts/valid_fields'
 import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
 import { buildProfiles } from "../scripts/profile";
 import { concatList } from "../scripts/common_script"
+import UploadRadioComponent from './UploadRadio';
 
-const XLSXReader = ({setDashboard, setProfiles, navigation,setNavigation}) => {
+const XLSXReader = ({setDashboard, setProfiles, setNavigation}) => {
+
+    const [selectedOption, setSelectedOption] = useState("published");
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
     const coiFileNameRegexStr = `(All-Coi|Coi)${coiTypeRegex}`
     const vaildFileRegexStr = "[A-Za-z0-9 -_.,()\[\]]*"
@@ -17,34 +20,69 @@ const XLSXReader = ({setDashboard, setProfiles, navigation,setNavigation}) => {
         "inst": {
             key: crypto.randomUUID(),
             href: "InstituionalCOI",
-            name: "Instituional COI Violation",
-            description: "It contains (potential) COI violation due to institutional match.",
+            name: {
+                "published": "Instituional COI Violation",
+            },
+            description: {
+                "published": "It contains COI violation due to institutional match.",
+            },
             violation: ['positive', 'possible'],
             coi_function: buildInst
         },
         "meta_pc" : {
             key: crypto.randomUUID(),
             href: "PossibleCOI",
-            name: "Possible COI Violation", 
-            description: "It contains possible COI violations (based on the conference-specified policy for COI) with the assigned reviewers",
+            name: {
+                "unpublished": "History of Collaboration (Unreported COI)",
+                "published": "History of Collaboration"
+            }, 
+            description: {
+                "unpublished": "Contains all unreported COIs",
+                "published": "Contain all co-authorship history of author-assigned reviewer/meta-reviewer pairs."
+            },
             violation: ['positive', 'possible'],
             coi_function: buildMetaPC
         },
         "past_sub": {
             key: crypto.randomUUID(),
-            name: "Past Sub", 
             href: "PastSubCOI",
-            description: "COI violations due to published papers that appear in DBLP",
+            name: {
+                "unpublished": "Past Submission (Unreported COI)",
+                "published": "Past Submission (Reported COI)"
+            }, 
+            description: {
+                "unpublished": "Contains all unreported COIs due to past submissions made by the author-reviewer pairs as coauthors",
+                "published": "Contains all reported COIs due to past submissions made by the author-reviewer pairs as coauthors"
+            },
             violation: ['positive'],
             coi_function: buildPastSub
         }
     }
     
+    const handleFileSelection = (files, isAll) => {
+        // Convert FileList to an array
+        const validFiles = Array.from(files).filter((file) =>
+            isAll ? file.name.startsWith("All-") && file.name.endsWith(".xlsx") 
+                  : !file.name.startsWith("All-") && file.name.endsWith(".xlsx")
+        );
+    
+        if (validFiles.length > 0) {
+            console.log("Valid files selected:", validFiles);
+            return validFiles
+        } else {
+            alert("Please select a file with the correct naming convention and .xlsx extension.");
+            return validFiles
+        }
+    }
+    
 
     const handleFileUpload = (files) => {
-        const filesArray = Array.from(files); // Convert FileList to array
+        const filesArray = Array.from(files);
+
+        const validFileArray = handleFileSelection(filesArray, selectedOption !== "published")
+
         Promise.all(
-            filesArray.map((file) => {
+            validFileArray.map((file) => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -119,9 +157,9 @@ const XLSXReader = ({setDashboard, setProfiles, navigation,setNavigation}) => {
         else {
             const json = {
                 key: coiType.key,
-                name: coiType.name,
+                name: coiType.name[selectedOption],
                 type: type.toLowerCase(),
-                description: coiType.description,
+                description: coiType.description[selectedOption],
                 href: coiType.href,
                 coi_data: coiData
             }
@@ -131,11 +169,11 @@ const XLSXReader = ({setDashboard, setProfiles, navigation,setNavigation}) => {
 
 
     return (
-        <div>
-        <h2>Upload XLSX Files</h2>
-            <FileInput onChange={handleFileUpload} />
-        </div>
-    );
+    <>
+        <UploadFileComponent handleFileUpload={handleFileUpload} />
+        <UploadRadioComponent selectedOption={selectedOption} setSelectedOption={setSelectedOption}/>
+    </>
+    )
 };
 
 export default XLSXReader;
