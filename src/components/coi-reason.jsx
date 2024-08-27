@@ -1,12 +1,7 @@
-import { useState, useEffect } from "react";
-
-
 export default function ReasonPanel({violation}) {
-  console.log(violation)
-
   const PositiveInstReason = (reason) => {
     return (
-        <tr className="hover:bg-gray-100">
+        <tr key={0} className="hover:bg-gray-100">
             <td className="px-6 py-4 text-sm font-medium text-gray-800">{reason.authorName}</td>
             <td className="px-6 py-4 text-sm text-gray-800">{reason.reviewerName}</td>
             <td className="px-6 py-4 text-sm text-gray-800 whitespace-normal">{reason.institution}</td>
@@ -16,7 +11,7 @@ export default function ReasonPanel({violation}) {
 
   const PossibleInstReason = (reason) => {
       return (
-          <tr className="hover:bg-gray-100">
+          <tr key={0} className="hover:bg-gray-100">
               <td className="px-6 py-4 text-sm font-medium text-gray-800">{reason.authorName}</td>
               <td className="px-6 py-4 text-sm text-gray-800">
                 <ul>
@@ -77,7 +72,7 @@ export default function ReasonPanel({violation}) {
             <td>  
               <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
                 <thead>
-                  <tr>
+                  <tr key={0}>
                     <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Name</th>
                     <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Year</th>
                     <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Count</th>
@@ -129,8 +124,8 @@ export default function ReasonPanel({violation}) {
             <table className="min-w-full divide-y divide-gray-200">
               <thead >
                 <tr>
-                    {violation.header.map(header => (
-                        <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">{header}</th>
+                    {violation.header.map((header, index) => (
+                        <th key={index} scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">{header}</th>
                     ))}
                   </tr>
               </thead>

@@ -1,8 +1,9 @@
 import { useLocation } from "react-router-dom";
 import { buildGraph } from "../scripts/graph"
 import { constructUIJson } from "../scripts/violation_ui_structure";
-import SidePanel from "./SidePanel";
 import { useState, useEffect } from "react";
+import GraphUI from './GraphUI';
+import ReasonPanel from './coi-reason';
 
 
 
@@ -10,8 +11,8 @@ export default function COIMetaData(){
     const location = useLocation();
     const state  = location.state;
     const [open, setOpen] = useState(false)
-    const [graph, setGraph] = useState({});
-    const [violation, setViolation] = useState({});
+    const [graph, setGraph] = useState(null);
+    const [violation, setViolation] = useState(null);
     if (!state) {
         // Handle case when jsonData is null or undefined
         return <div>No data available</div>;
@@ -28,19 +29,11 @@ export default function COIMetaData(){
         }
     }, [state]); // Only run when state changes
 
-    function showGraph() {
-        setOpen(true);
-    }
-
     return (
         <div>
             <header className="bg-white shadow">
                 <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex space-x-4">
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">{'Page ID: ' + coi_data.pageId}</h1>
-                    <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-3 border border-gray-400 rounded shadow"
-                            onClick={() => showGraph()}>
-                        View Graph
-                    </button>
                 </div>
             </header>
             <main>
@@ -88,9 +81,17 @@ export default function COIMetaData(){
                         </tbody>
                         </table>
                 </div>
-            </main>
-            <main>
-                <SidePanel open={open} setOpen={setOpen} graph={graph} violation={violation} />
+                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                    <div className="px-4 sm:px-0">
+                      <p className="text-base font-semibold leading-6 text-gray-900">Violation Details</p>
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                        {graph && <GraphUI graph={graph} className="flex-1" />}
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                        {violation && <ReasonPanel violation={violation} className="flex-1" />}
+                    </div>
+                </div>
             </main>
         </div>
     )
