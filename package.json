@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@carbon/charts": "^1.21.3",
+    "@carbon/charts-react": "^1.21.3",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.5",
     "@material-tailwind/react": "^2.1.9",
-    "all": "^0.0.0",
+    "carbon-components": "^10.58.15",
+    "d3": "^7.9.0",
     "flowbite": "^2.5.1",
     "flowbite-react": "^0.10.1",
     "react": "^18.2.0",

@@ -5,12 +5,12 @@ const buildTempProfile = (name, email) =>{
         key: crypto.randomUUID(),
         name: name,
         email: email,
-        author: 0,
-        reviewer: 0,
         violator: {
             possible: [],
             positive: []
         },
+        paper: [],
+        violation: {}
     }
 }
 
@@ -28,10 +28,18 @@ const addProfile = (profiles, person, violator, role, coiPaper, type, violation_
         profiles[person.email] = buildTempProfile(person.name, person.email);
     // add coi violation to person profile
     profiles[person.email].violator[violation_category].push(violatorSchema);
-    if (role === 'author')
-        profiles[person.email].author += 1
-    else
-        profiles[person.email].reviewer += 1
+    const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
+    const currentPapers = profiles[person.email].paper;
+
+    // Add paperIds to the list only if they don't already exist
+    paperIds.forEach((id) => {
+        if (!currentPapers.includes(id)) {
+            currentPapers.push(id);
+        }
+    });
+    if (!profiles[person.email].violation.hasOwnProperty(type))
+        profiles[person.email].violation[type] = 0
+    profiles[person.email].violation[type] += 1
 }
 
 const buildProfilePastSub = (data, profiles, category) => {
@@ -40,8 +48,6 @@ const buildProfilePastSub = (data, profiles, category) => {
         let reviewer = coiPaper.reviewer[0];
         //For authors of the paper
         addProfile(profiles, author, reviewer, "author", coiPaper, 'past_sub', category)
-        //For reviewer of the paper
-        addProfile(profiles, reviewer, author, "reviewer", coiPaper, 'past_sub', category)
     })
 }
 const buildProfileMetaPC = (data, profiles, category) => {
@@ -51,8 +57,6 @@ const buildProfileMetaPC = (data, profiles, category) => {
 
         //For authors of the paper
         addProfile(profiles, author, reviewer, "author", coiPaper, 'meta_pc', category)
-        //For reviewer of the paper
-        addProfile(profiles, reviewer, author, "reviewer", coiPaper, 'meta_pc', category)
     })
 }
 
@@ -75,8 +79,9 @@ const handleProfileInstPositive = (coiPaper, profiles, category) => {
         const name2 = violations[i].name2
         const violator1 = findProfileByName(coiPaper.reviewer, name1) !== -1 ? findProfileByName(coiPaper.reviewer, name1, 'reviewer') : findProfileByName(coiPaper.author, name1, 'author');
         const violator2 = findProfileByName(coiPaper.reviewer, name2) !== -1 ? findProfileByName(coiPaper.reviewer, name2, 'reviewer') : findProfileByName(coiPaper.author, name2, 'author');
-        addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "positive")
-        addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, 'inst', "positive")
+        
+        violator1.type == "author" && addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "positive")
+        violator1.type == "reviewer" && addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, 'inst', "positive")
     }
     
 }
@@ -88,8 +93,8 @@ const handleProfileInstPossible = (coiPaper, profiles, category) => {
     const violator1 = findProfileByName(coiPaper.reviewer, name1) !== -1 ? findProfileByName(coiPaper.reviewer, name1, 'reviewer') : findProfileByName(coiPaper.author, name1, 'author');
     const violator2 = findProfileByName(coiPaper.reviewer, name2) !== -1 ? findProfileByName(coiPaper.reviewer, name2, 'reviewer') : findProfileByName(coiPaper.author, name2, 'author');
         
-    addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "possible")
-    addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, 'inst', "possible")
+    violator1.type == "author" && addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "possible")
+    violator1.type == "reviewer" && addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, 'inst', "possible")
 }
 
 const coiFunction = {
@@ -106,23 +111,100 @@ const coiFunction = {
 
 export const buildProfiles = (data) => {
     const profiles = {};
-    Object.keys(data.positive).forEach((key) => {
+    
+    data.positive && Object.keys(data.positive).forEach((key) => {
         const coiData = data.positive[key]
         let type = coiData.type;
-
         coiFunction[type].build(coiData.coi_data, profiles, 'positive')
     });
 
 
-    Object.keys(data.possible).forEach((key) => {
+    data.possible && Object.keys(data.possible).forEach((key) => {
         const coiData = data.possible[key]
         let type = coiData.type;
 
         coiFunction[type].build(coiData.coi_data, profiles, 'possible')
     });
 
-
-    
     return profiles;
-    
 }
+
+const buildDatasetAll = (profilesData) => {
+    const chartDatas = [];
+    Object.keys(profilesData).forEach((key) => {
+        const profile = profilesData[key];
+
+        const chartData = {
+            group: "All",
+            key: `${profile.name}`,
+            value: Object.values(profile.violation).reduce((acc, value) => acc + value, 0),
+        };
+        chartDatas.push(chartData);
+    });
+    
+    return chartDatas;
+    
+};
+export const buildTopProfile = (profilesData) => {
+    const tempProfiles = [];
+    Object.keys(profilesData).forEach((key) => {
+        const profile = profilesData[key];
+
+        const profileData = {
+            name: profile.name,
+            count: Object.values(profile.violation).reduce((acc, value) => acc + value, 0),
+            profileData: profile
+        };
+        tempProfiles.push(profileData);
+    });
+
+    return {topProfiles: tempProfiles
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5)};
+    
+};
+const buildDatasetCOI = (profilesData, type, datasetName) => {
+    const data = [];
+    Object.keys(profilesData).forEach((key) => {
+        const profile = profilesData[key];
+        
+        const userData = {
+            group: datasetName,
+            key: `${profile.name}`,
+            value: profile.violation[type] !== undefined ? profile.violation[type] : 0,
+        };
+        data.push(userData);
+    });
+    return data;
+    
+};
+
+export const buildProfileGraph = (profilesData) => {
+    const dataAll = buildDatasetAll(profilesData);
+    const dataPastSub = buildDatasetCOI(profilesData, "past_sub", "Past Submissions")
+    const dataMetaPC = buildDatasetCOI(profilesData, "meta_pc", "COI Violations")
+    const dataInst = buildDatasetCOI(profilesData, "inst", "Institution Violations")
+    // Define options with correct syntax
+    const options = {
+        title: 'Profile Violation Chart',
+        data: {
+            selectedGroups: ['All'],
+        },
+        axes: {
+            left: {
+                mapsTo: 'value',
+            },
+            bottom: {
+                scaleType: 'labels',
+                mapsTo: 'key',
+            },
+        },
+        height: '400px',
+    };
+    const data = [...dataAll, ...dataPastSub, ...dataMetaPC, ...dataInst];
+    data.sort((a, b) => b.value - a.value);
+    return {
+        data: data,
+        options: options
+    }
+};

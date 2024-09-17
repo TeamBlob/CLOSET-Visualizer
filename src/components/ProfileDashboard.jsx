@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
+import ProfileRow from "./ProfileRow";
+import BarChart from './ChartBar.jsx'
+import {buildProfileGraph} from '../scripts/profile.js'
 
 export default function ProfileDashboard({ profileData }) {
     const [currentPage, setCurrentPage] = useState(1);
+    const [chartSetting, setChartSetting] = useState({});
     const itemsPerPage = 10;
 
     // Calculate the current items to display based on the current page
@@ -12,6 +15,11 @@ export default function ProfileDashboard({ profileData }) {
     const currentItems = Object.values(profileData).slice(startIndex, endIndex);
     const totalPages = Math.ceil(Object.values(profileData).length / itemsPerPage);
     const onPageChange = (page) => setCurrentPage(page);
+
+    useEffect(() => {
+        setChartSetting(buildProfileGraph(profileData));
+    }, [profileData]); // Dependency array ensures this runs only when profileData changes
+    
 
     return (
     <div>
@@ -23,6 +31,9 @@ export default function ProfileDashboard({ profileData }) {
         </div>
         </header>
         <main>
+            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <BarChart chartSetting={chartSetting} />
+            </div>
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
             <thead>
@@ -61,30 +72,8 @@ export default function ProfileDashboard({ profileData }) {
             </thead>
             <tbody className="divide-y divide-gray-200 border border-gray-300">
                 {currentItems.map((pro) => (
-                <tr key={pro.key} className="hover:bg-gray-100">
-                    <Link
-                    to={{ pathname: `/profiledetails/${pro.key}` }}
-                    state={{ profile: pro }}
-                    className="flex min-w-0 gap-x-4"
-                    >
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
-                        {pro.name}
-                    </td>
-                    </Link>
-                    <td className="px-6 py-4 text-sm text-gray-800">
-                    {pro.email}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800">
-                    {pro.violator.possible.length}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800">
-                    {pro.violator.positive.length}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                    {pro.violator.positive.length + pro.violator.possible.length}
-                    </td>
-                </tr>
-                ))}
+                    <ProfileRow key={pro.key} pro={pro} />)
+                )}
             </tbody>
             </table>
             {totalPages > 1 && (

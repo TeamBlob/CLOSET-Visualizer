@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 import UploadFileComponent from './UploadFile'
 import { checkFields } from '../scripts/valid_fields'
-import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
-import { buildProfiles } from "../scripts/profile";
+import { buildPastSub, buildInst, buildMetaPC, buildViolationGraph } from '../scripts/violation_structure';
+import { buildProfiles, buildTopProfile } from "../scripts/profile";
 import { concatList } from "../scripts/common_script"
 import UploadRadioComponent from './UploadRadio';
 
-const XLSXReader = ({setDashboard, setProfiles, setNavigation}) => {
+const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigation}) => {
 
     const [selectedOption, setSelectedOption] = useState("published");
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
@@ -79,7 +79,7 @@ const XLSXReader = ({setDashboard, setProfiles, setNavigation}) => {
     const handleFileUpload = (files) => {
         const filesArray = Array.from(files);
 
-        const validFileArray = handleFileSelection(filesArray, selectedOption !== "published")
+        const validFileArray = handleFileSelection(filesArray, selectedOption === "unpublished")
 
         Promise.all(
             validFileArray.map((file) => {
@@ -111,32 +111,33 @@ const XLSXReader = ({setDashboard, setProfiles, setNavigation}) => {
             if (fields) {
                 let type = checkFields(Object.keys(fields))
                 if (type !== -1)
-                    constructSubCOIJson(type, metadata)
+                    constructSubCOIJson(type, filename, metadata)
             }
         });
-        const profile = buildProfiles(COI_DASHBOARD);
         console.log(COI_DASHBOARD)
+        const profile = buildProfiles(COI_DASHBOARD);
+        setCOIDashboardGraph({...buildViolationGraph(COI_DASHBOARD), ...buildTopProfile(profile)});
         setProfiles(profile);
         setDashboard(COI_DASHBOARD);
         
         updateShowProperty('Possible Violation', COI_DASHBOARD?.possible ?? false);
         updateShowProperty('Positive Violation', COI_DASHBOARD?.positive ?? false);
-        updateShowProperty('Profile', true)        
+        updateShowProperty('Profile', true)    
+        updateShowProperty('Dashboard Overview', true)        
     }
 
     const updateShowProperty = (name, show) => {
         setNavigation(prevNavigation =>
             prevNavigation.map(item =>
-            item.name === name ? { ...item, show } : item
-            )
+            item.name === name ? { ...item, show } : item)
         );
     };
     
-    const constructSubCOIJson = (type, metadata) =>{
+    const constructSubCOIJson = (type, filename, metadata) =>{
         // retrieve coiType json from coiTypesDict dictionary
         const coiType = coiTypesDict[type.toLowerCase()]
 
-        const coi_data = coiType.coi_function(metadata)
+        const coi_data = coiType.coi_function(filename, metadata)
         const positive = coi_data[0];
         const possible = coi_data[1];
         

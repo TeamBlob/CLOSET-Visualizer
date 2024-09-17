@@ -1,7 +1,7 @@
 import Sub_List from "./Sub-List"
 import Tooltip from "./ToolTips"
 
-export default function Dashboard({dashboardData})
+export default function COISubDashboard({dashboardData})
 {
     return (
         <div>
