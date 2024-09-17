@@ -319,12 +319,23 @@ const buildDatasetViolation = (data) => {
         Object.keys(dataSubDashboard).forEach((key) => {
             const categoryName = dataSubDashboard[key].name
             const coiDatas = dataSubDashboard[key].coi_data;
-            const chartData = {
-                group: "Main",
-                key: categoryName,
-                value: coiDatas.length,
-            };
-            chartDatas.push(chartData)
+
+            const existingData = chartDatas.find((item) => item.key === categoryName);
+
+            if (existingData) {
+                // If the paperId exists, increment its value by 1
+                existingData.value += coiDatas.length;
+            } else {
+                // If the paperId does not exist, create a new entry
+                const chartData = {
+                    group: "Main",
+                    key: categoryName,
+                    value: coiDatas.length,
+                };
+                chartDatas.push(chartData)
+            }
+
+
         });
     });
 
