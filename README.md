@@ -1,4 +1,4 @@
-# coi-finder-application
+# CLOSET Visualizer
 
 ## Pre-requisites
 
