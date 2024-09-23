@@ -15,9 +15,6 @@ export default function ProfileDetails() {
                 setPositive(location.state.profile.violator.positive)
                 setPossible(location.state.profile.violator.possible)
             }
-            console.log('location', location.state.profile);
-
-
         }
         
     }, [location.state]); // Only run when state changes
@@ -39,29 +36,13 @@ export default function ProfileDetails() {
                 <div className="flex flex-col items-center justify-center space-y-4 md:flex-row md:space-y-0 md:space-x-8">
                     <div key={1} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
                         <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
-                            {profile.author}
-                        </div>
-                        <div className="absolute bottom-2 text-xs md:text-base text-gray-900">
-                            Author
-                        </div>
-                    </div>
-                    <div key={2} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
-                        <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
-                            {profile.reviewer}
-                        </div>
-                        <div className="absolute bottom-2 text-xs md:text-base text-gray-900">
-                            Review
-                        </div>
-                    </div>
-                    <div key={3} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
-                        <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
                             {positive.length}
                         </div>
                         <div className="absolute bottom-2 text-xs md:text-base text-gray-900">
                             Positive
                         </div>
                     </div>
-                    <div key={4} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
+                    <div key={2} className="relative w-24 h-24 bg-gray-300 rounded-full flex flex-col items-center justify-center text-gray-700">
                         <div className="absolute top-1/2 transform -translate-y-1/2 text-sm md:text-lg">
                             {possible.length}
                         </div>

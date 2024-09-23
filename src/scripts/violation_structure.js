@@ -1,4 +1,9 @@
-export const buildPastSub = (metadata) => {
+const NAME_REGEX = /[^()]+/;
+const EMAIL_REGEX = /([\w\.-]+@([\w-]+\.)+[\w-]+)/;
+const DETAIL_REGEX = /[^()]+/
+
+
+export const buildPastSub = (filename, metadata) => {
     const pastSubData = [
     { 
         category: 'positive',
@@ -11,12 +16,10 @@ export const buildPastSub = (metadata) => {
 
     if(metadata.length < 1) return pastSubData
 
-    const normalRegex = /[\w\s]+/;
-    const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
-
     for (let i = 0; i < metadata.length; i++) 
     {
         let row = metadata[i]
+        
         try
         {
             const paperid = row['PAPER ID'];
@@ -25,11 +28,11 @@ export const buildPastSub = (metadata) => {
             const recent_venue = row['MOST RECENT VENUE'];
             const submission_time = row['SUBMISSION TIME'];
 
-            const authorName = author.match(normalRegex)[0];
-            const authorEmail = author.match(emailRegex)[0];
+            const authorName = author.match(NAME_REGEX)[0];
+            const authorEmail = author.match(EMAIL_REGEX)[0];
 
-            const reviewerName = reviewer.match(normalRegex)[0];
-            const reviewerEmail = reviewer.match(emailRegex)[0];
+            const reviewerName = reviewer.match(NAME_REGEX)[0];
+            const reviewerEmail = reviewer.match(EMAIL_REGEX)[0];
             
             const violationList = [];
 
@@ -43,6 +46,7 @@ export const buildPastSub = (metadata) => {
             const coiData_json = {
                 key: crypto.randomUUID(),
                 pageId: paperid,
+                filename: filename,
                 author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
                 reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail}],
                 violation: {
@@ -52,7 +56,7 @@ export const buildPastSub = (metadata) => {
             }
             
             pastSubData[0].coi_data.push(coiData_json)
-
+            
         }
         catch(error){
             continue;
@@ -62,7 +66,7 @@ export const buildPastSub = (metadata) => {
     return pastSubData
 }
 
-export const buildInst = (metadata) =>{
+export const buildInst = (filename, metadata) =>{
     const instData = [
     { 
         category: 'positive',
@@ -75,10 +79,8 @@ export const buildInst = (metadata) =>{
 
     if(metadata.length < 1) return instData
 
-    const normalRegex = /[\w\s,\{\}\']+/;
-    const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
-    const detailRegex = new RegExp(`\\(${emailRegex.source}, ${normalRegex.source}\\)`);
-    const nameDetailReg = new RegExp(`(${normalRegex.source}${detailRegex.source})`, 'g');
+    const detailRegex = new RegExp(`\\(${EMAIL_REGEX.source}, ${DETAIL_REGEX.source}\\)`);
+    const nameDetailReg = new RegExp(`(${NAME_REGEX.source}${detailRegex.source})`, 'g');
 
     for (let i = 0; i < metadata.length; i++) {
         let row = metadata[i]
@@ -133,6 +135,7 @@ export const buildInst = (metadata) =>{
             const coiData_json = {
                 key: crypto.randomUUID(),
                 pageId: paperid,
+                filename: filename,
                 author: author_list,
                 reviewer: reviewer_list,
                 violation: {
@@ -146,6 +149,7 @@ export const buildInst = (metadata) =>{
         
         }
         catch(error){
+            console.log(error)
             continue;
         }
         
@@ -153,18 +157,16 @@ export const buildInst = (metadata) =>{
     return instData
 }
 
-const handleInstSchema = (data) => {
+const handleInstSchema = (listMatch) => {
     // Regular Expression
-    const normalRegex = /[\w\s,\{\}\']+/;
-    const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
-    const detailRegex = new RegExp(`\(${emailRegex.source}, ${normalRegex.source}\)`);
+    const detailRegex = new RegExp(`\(${EMAIL_REGEX.source}, ${DETAIL_REGEX.source}\)`);
 
     const tempList = [] 
-    for (const match of data) {
+    for (const match of listMatch) {
         const matchedData = match[0].trim();
 
         const key = crypto.randomUUID();
-        const name = matchedData.match(normalRegex)[0].trim();
+        const name = matchedData.match(NAME_REGEX)[0].trim();
         const detail = matchedData.match(detailRegex)[0].replace(/[()]/g, '').split(',').map(detail => detail.trim());
         
         const email = detail[0];
@@ -180,7 +182,7 @@ const handleInstSchema = (data) => {
     return tempList;
 }
 
-export const buildMetaPC = (metadata) =>{
+export const buildMetaPC = (filename, metadata) =>{
     const metaPCData = [
     { 
         category: 'positive',
@@ -191,10 +193,6 @@ export const buildMetaPC = (metadata) =>{
         coi_data: []
     }]
     if(metadata.length < 1) return metaPCData
-    
-    // Regex expression to extract the author/reviewer's name and email addresses
-    const normalRegex = /[\w\s]+/;
-    const emailRegex = /[\w\.-]+@([\w-]+\.)+[\w-]{2,4}/;
     
     for (let i = 0; i < metadata.length; i++) 
     {
@@ -212,16 +210,17 @@ export const buildMetaPC = (metadata) =>{
             const count_last10 = row['CO-AUTHORSHIP COUNT IN LAST 10 YEARS'];
             const history_violation = row['CO-AUTHORSHIP HISTORY'];
             const comment = row['COMMENTS']
-            const authorName = author.match(normalRegex)[0];
-            const authorEmail = author.match(emailRegex)[0];
+            const authorName = author.match(NAME_REGEX)[0];
+            const authorEmail = author.match(EMAIL_REGEX)[0];
 
-            const reviewerName = reviewer.match(normalRegex)[0];
-            const reviewerEmail = reviewer.match(emailRegex)[0];
+            const reviewerName = reviewer.match(NAME_REGEX)[0];
+            const reviewerEmail = reviewer.match(EMAIL_REGEX)[0];
 
             const isPossible = Boolean(comment) // if comment is empty, isPossible is false, true otherwise
             const coiData_json = {
                 key: crypto.randomUUID(),
                 pageId: paperid,
+                filename: filename,
                 author: [{ key: crypto.randomUUID(), name: authorName, email: authorEmail}],
                 reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail, url: reviewerURL }],
                 violation: {
@@ -269,5 +268,148 @@ const handle_meta_pc_schemas = (data) => {
     }
     return violationList
 };
+
+const buildDatasetPaperCount = (data) => {
+    const chartDatas = []
+    Object.keys(data).length > 0 && Object.keys(data).forEach((key) => {
+        const dataSubDashboard = data[key];
+        Object.keys(dataSubDashboard).forEach((key) => {
+            const coiCategory = dataSubDashboard[key].coi_data;
+            coiCategory.forEach((coi_data) => {
+                const pageIds = coi_data.pageId.toString().split(",").map(item => item.trim());
+        
+                pageIds.forEach((pageId) => {
+                    // Check if chartDatas already contains an entry for the given paperId
+                    const existingData = chartDatas.find((item) => item.group === pageId);
+        
+                    if (existingData) {
+                        // If the paperId exists, increment its value by 1
+                        existingData.value += 1;
+                    } else {
+                        // If the paperId does not exist, create a new entry
+                        const chartData = {
+                            group: pageId,
+                            value: 1,
+                        };
+                        chartDatas.push(chartData);
+                    }
+                });
+            });
+        });
+    });
+
+    const options = {
+        "title": "Paper Violation",
+        "donut": {
+            "center": {
+                "label": "Paper Violation Count"
+            }
+        },
+        "height": "400px"
+    }
+    
+    return { data: chartDatas, options: options };
+}
+
+const buildDatasetViolation = (data) => {
+    const chartDatas = []
+    
+    Object.keys(data).length > 0 && Object.keys(data).forEach((key) => {
+        const dataSubDashboard = data[key];
+        Object.keys(dataSubDashboard).forEach((key) => {
+            const categoryName = dataSubDashboard[key].name
+            const coiDatas = dataSubDashboard[key].coi_data;
+
+            const existingData = chartDatas.find((item) => item.key === categoryName);
+
+            if (existingData) {
+                // If the paperId exists, increment its value by 1
+                existingData.value += coiDatas.length;
+            } else {
+                // If the paperId does not exist, create a new entry
+                const chartData = {
+                    group: "Main",
+                    key: categoryName,
+                    value: coiDatas.length,
+                };
+                chartDatas.push(chartData)
+            }
+
+
+        });
+    });
+
+
+    const options = {
+        title: 'COI Violation Category',
+        data: {
+            selectedGroups: ['Main'],
+        },
+        axes: {
+            left: {
+                mapsTo: 'value',
+            },
+            bottom: {
+                scaleType: 'labels',
+                mapsTo: 'key',
+            },
+        },
+        height: '400px',
+    };    
+    return { data: chartDatas, options: options };
+}
+
+const buildDatasetPositivePossible = (data) => {
+    const chartDatas = []
+    
+    Object.keys(data).length > 0 && Object.keys(data).forEach((key) => {
+        const dataSubDashboard = data[key];
+        
+        let count = 0;
+        Object.keys(dataSubDashboard).forEach((key) => {
+            count += dataSubDashboard[key].coi_data.length;
+        });
+        const chartData = {
+            group: "Main",
+            key: key,
+            value: count,
+        };
+        chartDatas.push(chartData) 
+    });
+
+    const options = {
+        title: 'Positive vs Possible',
+        data: {
+            selectedGroups: ['All'],
+        },
+        axes: {
+            left: {
+                mapsTo: 'value',
+            },
+            bottom: {
+                scaleType: 'labels',
+                mapsTo: 'key',
+            },
+        },
+        height: '400px',
+        color: {
+            scale: {
+                Main: '#5aa469',
+            },
+        },
+    };    
+    return { data: chartDatas, options: options };
+}
+
+export const buildViolationGraph = (data) => {
+    const paperCountSetting = buildDatasetPaperCount(data)
+    const violationSetting = buildDatasetViolation(data)
+    const positivePossibleSetting = buildDatasetPositivePossible(data)
+    return {
+        paperGraph: paperCountSetting,
+        violationGraph: violationSetting, 
+        positivePossibleGraph: positivePossibleSetting
+    }
+}
 
  

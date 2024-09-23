@@ -2,10 +2,10 @@ import { Card, Typography } from "@material-tailwind/react";
 import { Link } from "react-router-dom"
 
 
-const TABLE_HEAD = ["Paper ID", "Role", "Type", ""];
+const TABLE_HEAD = ["Paper ID", "Reviewer", "Type", ""];
  
 export function ViolationTable({type, data}) {
-  console.log(type, data, data.length > 0 && data[0].coi_paper.pageId)
+  console.log(type, data, data.length > 0 && data[0].coi_paper)
   if (data.length === 0) {
     // Handle case when location.state is null or undefined
     return (
@@ -65,7 +65,7 @@ export function ViolationTable({type, data}) {
                     color="blue-gray"
                     className="font-normal"
                   >
-                    {violation.role}
+                    {violation.coi_paper.reviewer[0].name}
                   </Typography>
                 </td>
                 <td className={classes}>
