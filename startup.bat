@@ -1,4 +1,7 @@
 @echo off
+:: Installing Dependency
+start npm install -a
+
 
 :: Start the ReactJS application using the vite dev command with the dynamic port
 echo Starting ReactJS application on port 3000...
