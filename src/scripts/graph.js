@@ -89,7 +89,7 @@ const buildPositiveInstGraph = (graph, data) => {
         const key2 = findKeyByName(data.reviewer, name2) !== -1 ? findKeyByName(data.reviewer, name2) : findKeyByName(data.author, name2);
 
         const json = {
-            from: key1, to: key2
+            from: key1, to: key2, width: 3, arrows: { to: false }
         }
         graph.edges.push(json)
     }
@@ -104,7 +104,7 @@ const buildPossibleInstGraph = (graph, data) => {
     const key2 = findKeyByName(data.reviewer, name2) !== -1 ? findKeyByName(data.reviewer, name2) : findKeyByName(data.author, name2);
     
     const json = {
-        from: key1, to: key2
+        from: key1, to: key2, width: 8, arrows: { to: false }
     }
     graph.edges.push(json)
 }
@@ -114,7 +114,7 @@ const build_possible_violation_graph = (graph, data) => {
     const reviewerKey = data.reviewer[0].key
 
     const json = {
-        from: reviewerKey, to: authorKey
+        from: reviewerKey, to: authorKey, width: 3, arrows: { to: false }
     }
     graph.edges.push(json)
 
@@ -125,7 +125,7 @@ const build_past_sub_graph = (graph, data) => {
     const reviewerKey = data.reviewer[0].key
 
     const json = {
-        from: reviewerKey, to: authorKey
+        from: reviewerKey, to: authorKey, width: 3, arrows: { to: false }
     }
     graph.edges.push(json)
 
