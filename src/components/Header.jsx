@@ -31,7 +31,7 @@ export default function Header({ navigation, setNavigation }) {
                     <img
                       className="h-8 w-8"
                       src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                      alt="COI Finder"
+                      alt="CLOSET Visualizer"
                     />
                   </div>
                   <div className="hidden md:block">
