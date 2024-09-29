@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 import UploadFileComponent from './UploadFile'
 import { checkFields } from '../scripts/valid_fields'
-import { buildPastSub, buildInst, buildMetaPC, buildViolationGraph } from '../scripts/violation_structure';
+import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
+import { buildViolationGraph } from '../scripts/dashboard_graph';
 import { buildProfiles, buildTopProfile } from "../scripts/profile";
 import { concatList } from "../scripts/common_script"
 import UploadRadioComponent from './UploadRadio';

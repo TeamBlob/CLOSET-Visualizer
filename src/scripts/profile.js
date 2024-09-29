@@ -10,6 +10,7 @@ const buildTempProfile = (name, email) =>{
             positive: []
         },
         paper: [],
+        reviewer: [],
         violation: {}
     }
 }
@@ -26,10 +27,19 @@ const addProfile = (profiles, person, violator, role, coiPaper, type, violation_
     // check if email of person exist in profile, if not create new profile json
     if (!profiles.hasOwnProperty(person.email))
         profiles[person.email] = buildTempProfile(person.name, person.email);
+
+    const profile = profiles[person.email];
+
     // add coi violation to person profile
-    profiles[person.email].violator[violation_category].push(violatorSchema);
+    profile.violator[violation_category].push(violatorSchema);
+
+    if (!profile.reviewer.includes(violator.email)) {
+        profile.reviewer.push(violator.email);
+    }
+
+    
     const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
-    const currentPapers = profiles[person.email].paper;
+    const currentPapers = profile.paper;
 
     // Add paperIds to the list only if they don't already exist
     paperIds.forEach((id) => {
@@ -37,9 +47,12 @@ const addProfile = (profiles, person, violator, role, coiPaper, type, violation_
             currentPapers.push(id);
         }
     });
-    if (!profiles[person.email].violation.hasOwnProperty(type))
-        profiles[person.email].violation[type] = 0
-    profiles[person.email].violation[type] += 1
+
+    // Add violation counter for violation category {inst: 2, past_sub: 1}
+    if (!profile.violation.hasOwnProperty(type))
+        profile.violation[type] = 0
+    profile.violation[type] += 1
+    
 }
 
 const buildProfilePastSub = (data, profiles, category) => {
@@ -152,6 +165,8 @@ export const buildTopProfile = (profilesData) => {
 
         const profileData = {
             name: profile.name,
+            submission_count: profile.paper.length,
+            reviewer_count: profile.reviewer.length,
             count: Object.values(profile.violation).reduce((acc, value) => acc + value, 0),
             profileData: profile
         };
@@ -159,7 +174,7 @@ export const buildTopProfile = (profilesData) => {
     });
 
     return {topProfiles: tempProfiles
-        .sort((a, b) => b.count - a.count)
+        .sort((a, b) => b.submission_count - a.submission_count)
         .slice(0, 5)};
     
 };

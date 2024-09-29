@@ -3,6 +3,7 @@ import BarChart from './ChartBar'
 import ProfileChart from './ChartProfile'
 
 export default function COIGraphDashboard({ dashboardGraph }) {
+
     return (
         <>  
             <div>
@@ -13,12 +14,21 @@ export default function COIGraphDashboard({ dashboardGraph }) {
                 </header>
                 <main>
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {/* Use CSS grid for 2 by 2 layout */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <DonutChart chartSetting={dashboardGraph.paperGraph} />
-                            <BarChart chartSetting={dashboardGraph.violationGraph} />
-                            <BarChart chartSetting={dashboardGraph.positivePossibleGraph} />
+                        <div className="flex space-x-4">
+                            <div className="w-2/4">
+                                <DonutChart chartSetting={dashboardGraph.paperGraph}/>
+                            </div>
+                            <div className="w-2/4">
+                                <BarChart chartSetting={dashboardGraph.violationGraph} />
+                            </div>
+                        </div>
+                        <div className="flex space-x-4">
+                            <div className="w-2/4">
+                                <BarChart chartSetting={dashboardGraph.positivePossibleGraph} />
+                            </div>
+                            <div className="w-2/4">
                             <ProfileChart topProfiles={dashboardGraph.topProfiles} />
+                            </div>
                         </div>
                     </div>
                 </main>

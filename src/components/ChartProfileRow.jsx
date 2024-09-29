@@ -18,7 +18,10 @@ function ChartProfileRow({ key, pro }) {
         {pro.name}
       </td>
       <td className="px-6 py-4 text-sm font-medium text-gray-800">
-        {pro.count}
+        {pro.submission_count}
+      </td>
+      <td className="px-6 py-4 text-sm font-medium text-gray-800">
+        {pro.reviewer_count}
       </td>
     </tr>
   );

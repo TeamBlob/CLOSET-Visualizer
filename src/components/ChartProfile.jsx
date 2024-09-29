@@ -11,7 +11,8 @@ export default function ProfileChart({topProfiles}) {
                     <thead>
                         <tr>
                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Name</th>
-                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Count</th>
+                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Submission Count</th>
+                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Reviewer Count</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 border border-gray-300">
