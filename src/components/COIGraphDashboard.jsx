@@ -13,7 +13,7 @@ export default function COIGraphDashboard({ dashboardGraph }) {
                     </div>
                 </header>
                 <main>
-                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-8xxl px-4 py-6 sm:px-6 lg:px-8">
                         <div className="flex space-x-4">
                             <div className="w-2/4">
                                 <DonutChart chartSetting={dashboardGraph.paperGraph}/>
@@ -27,7 +27,7 @@ export default function COIGraphDashboard({ dashboardGraph }) {
                                 <BarChart chartSetting={dashboardGraph.positivePossibleGraph} />
                             </div>
                             <div className="w-2/4">
-                            <ProfileChart topProfiles={dashboardGraph.topProfiles} />
+                                <ProfileChart topProfiles={dashboardGraph.topProfiles} />
                             </div>
                         </div>
                     </div>

@@ -79,8 +79,9 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
 
     const handleFileUpload = (files) => {
         const filesArray = Array.from(files);
+        const isAll = selectedOption === "unpublished"
 
-        const validFileArray = handleFileSelection(filesArray, selectedOption === "unpublished")
+        const validFileArray = handleFileSelection(filesArray, isAll)
 
         Promise.all(
             validFileArray.map((file) => {
@@ -97,11 +98,11 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
                 });
             })
         ).then((results) => {
-            processData(results)
+            processData(results, isAll)
         });
     };
 
-    const processData = (data) => {
+    const processData = (data, isAll) => {
         if (data.length === 0) return
         
         data.forEach(sub_coi => {
@@ -115,9 +116,9 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
                     constructSubCOIJson(type, filename, metadata)
             }
         });
-        console.log(COI_DASHBOARD)
+
         const profile = buildProfiles(COI_DASHBOARD);
-        setCOIDashboardGraph({...buildViolationGraph(COI_DASHBOARD), ...buildTopProfile(profile)});
+        setCOIDashboardGraph({...buildViolationGraph(isAll, COI_DASHBOARD), ...buildTopProfile(profile)});
         setProfiles(profile);
         setDashboard(COI_DASHBOARD);
         

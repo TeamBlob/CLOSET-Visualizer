@@ -10,7 +10,7 @@ export default function ProfileChart({topProfiles}) {
                 <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
                     <thead>
                         <tr>
-                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Name</th>
+                            <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Author Name</th>
                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Submission Count</th>
                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500">Reviewer Count</th>
                         </tr>

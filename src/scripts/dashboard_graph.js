@@ -1,95 +1,117 @@
-const buildUnreportCount = (data) => {
+import { legend } from "@carbon/charts";
+
+const buildUnreportCount = (isAll, data) => {
     const chartDatas = []
     
-    const dataSubDashboard = data["possible"];
-    if (dataSubDashboard) {
-        Object.keys(dataSubDashboard).forEach((key) => {
-            const coiCategory = dataSubDashboard[key].coi_data;
-            const coiTypes = dataSubDashboard[key].type
-            coiCategory.forEach((coi_data) => {
-                const pageIds = coi_data.pageId.toString().split(",").map(item => item.trim());
-        
-                pageIds.forEach((pageId) => {
-                    // Check if chartDatas already contains an entry for the given paperId
-                    const existingData = chartDatas.find((item) => item.group === pageId);
-                    const paper_data = { coi_data: coi_data, type: coiTypes }
-                    if (existingData) {
-                        // If the paperId exists, increment its value by 1
-                        existingData.value += 1;
-                        existingData.paper.push(paper_data)
-                    } else {
-                        // If the paperId does not exist, create a new entry
-                        const chartData = {
-                            group: pageId,
-                            value: 1,
-                            paper: [paper_data]
-                        };
-                        chartDatas.push(chartData);
-                    }
+    Object.keys(data).length > 0 && Object.keys(data).forEach((key) => {
+        const dataSubDashboard = data[key];
+        if (dataSubDashboard) {
+            Object.keys(dataSubDashboard).forEach((key) => {
+                const coiCategory = dataSubDashboard[key].coi_data;
+                const coiTypes = dataSubDashboard[key].type
+                coiCategory.forEach((coi_data) => {
+                    const pageIds = coi_data.pageId.toString().split(",").map(item => item.trim());
+            
+                    pageIds.forEach((pageId) => {
+                        // Check if chartDatas already contains an entry for the given paperId
+                        const existingData = chartDatas.find((item) => item.group === pageId);
+                        const paper_data = { coi_data: coi_data, type: coiTypes }
+                        if (existingData) {
+                            // If the paperId exists, increment its value by 1
+                            existingData.value += 1;
+                            existingData.paper.push(paper_data)
+                        } else {
+                            // If the paperId does not exist, create a new entry
+                            const chartData = {
+                                group: pageId,
+                                value: 1,
+                                paper: [paper_data]
+                            };
+                            chartDatas.push(chartData);
+                        }
+                    });
                 });
             });
-        });
-    }
+        }
+    });
 
     const options = {
-        "title": "Unreported Paper Violation",
-        "donut": {
-            "center": {
-                "label": "Num of Unreported Count"
-            }
+        title: isAll ? 'Unreported Paper Violation (Num of Unreported COI)' : 'COI Paper Violation (Num of COI Violation)',
+        donut: {
+            alignment: 'center'
         },
-        "height": "400px"
+        height: "400px",
+        legend: {
+            alignment: "center"
+        }
+        
     }
     
     return { data: chartDatas, options: options };
 }
 
-const buildDatasetViolation = (data) => {
+const buildCategoryDataset = (isAll, data) => {
     const chartDatas = []
-    
+
     Object.keys(data).length > 0 && Object.keys(data).forEach((coi_types) => {
         const dataSubDashboard = data[coi_types];
         Object.keys(dataSubDashboard).forEach((coi_category) => {
             const categoryName = dataSubDashboard[coi_category].name
             const coiDatas = dataSubDashboard[coi_category].coi_data;
 
-            const existingData = chartDatas.find((item) => item.key === categoryName);
-            const existingData_category = chartDatas.find((item) => item.group === coi_types && item.key === categoryName);
+            // Submission Count
+            coiDatas.forEach((coiPaper) => {
+                const submissionCount = coiPaper.pageId.toString().split(",").map(item => item.trim()).length;
+                const existingData = chartDatas.find((item) => 
+                                                        item.key === categoryName && 
+                                                        item.group === "Submission Count");
+                if (existingData) {
+                    // If the paperId exists, increment its value by 1
+                    existingData.value += submissionCount;
+                } else {
+                    // If the paperId does not exist, create a new entry
+                    const chartData = {
+                        group: "Submission Count",
+                        key: categoryName,
+                        value: submissionCount,
+                    };
+                    chartDatas.push(chartData)
+                }
+            });
 
-            if (existingData) {
-                // If the paperId exists, increment its value by 1
-                existingData.value += coiDatas.length;
-            } else {
-                // If the paperId does not exist, create a new entry
-                const chartData = {
-                    group: "Main",
-                    key: categoryName,
-                    value: coiDatas.length,
-                };
-                chartDatas.push(chartData)
-            }
-            if (existingData_category) {
-                // If the paperId exists, increment its value by 1
-                existingData_category.value += coiDatas.length;
-            } else {
-                // If the paperId does not exist, create a new entry
-                const chartData = {
-                    group: coi_types,
-                    key: categoryName,
-                    value: coiDatas.length,
-                };
-                chartDatas.push(chartData)
-            }
+        });
 
+        Object.keys(dataSubDashboard).forEach((coi_category) => {
+            const categoryName = dataSubDashboard[coi_category].name
+            const coiDatas = dataSubDashboard[coi_category].coi_data;
+
+            // Submission Count
+            coiDatas.forEach((coiPaper) => {
+                const reviewerCount = coiPaper.reviewer.length
+                const existingData = chartDatas.find((item) => 
+                                                        item.key === categoryName && 
+                                                        item.group === "Reviewer Count");
+                if (existingData) {
+                    // If the paperId exists, increment its value by 1
+                    existingData.value += reviewerCount;
+                } else {
+                    // If the paperId does not exist, create a new entry
+                    const chartData = {
+                        group: "Reviewer Count",
+                        key: categoryName,
+                        value: reviewerCount,
+                    };
+                    chartDatas.push(chartData)
+                }
+            });
 
         });
     });
-
-
+    
     const options = {
-        title: 'COI Violation Category',
+        title: isAll ? 'Unreported COI Category' : 'COI Violation Category',
         data: {
-            selectedGroups: ['Main'],
+            selectedGroups: ['Submission Count', 'Reviewer Count'],
         },
         axes: {
             left: {
@@ -98,11 +120,15 @@ const buildDatasetViolation = (data) => {
             bottom: {
                 scaleType: 'labels',
                 mapsTo: 'key',
+                stacked: true
             },
         },
-        height: '400px',
+        height: '400px'
     };    
+
+
     return { data: chartDatas, options: options };
+
 }
 
 const buildDatasetPositivePossible = (data) => {
@@ -147,13 +173,15 @@ const buildDatasetPositivePossible = (data) => {
     return { data: chartDatas, options: options };
 }
 
-export const buildViolationGraph = (data) => {
-    const paperCountSetting = buildUnreportCount(data)
-    const violationSetting = buildDatasetViolation(data)
+export const buildViolationGraph = (isAll, data) => {
+    const paperCountSetting = buildUnreportCount(isAll, data)
     const positivePossibleSetting = buildDatasetPositivePossible(data)
+    const categorySetting = buildCategoryDataset(isAll, data)
+    
+    
     return {
         paperGraph: paperCountSetting,
-        violationGraph: violationSetting, 
+        violationGraph: categorySetting, 
         positivePossibleGraph: positivePossibleSetting
     }
 }
