@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
 import ProfileRow from "./ProfileRow";
 import BarChart from './ChartBar.jsx'
-import {buildProfileGraph} from '../scripts/profile.js'
+import {buildProfileGraph} from '../scripts/dashboard_profile.js'
 
 export default function ProfileDashboard({ profileData }) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -42,7 +42,7 @@ export default function ProfileDashboard({ profileData }) {
                     scope="col"
                     className="px-6 py-3 text-start text-xs font-medium text-gray-500"
                 >
-                    Name
+                    Author Name
                 </th>
                 <th
                     scope="col"
@@ -54,13 +54,13 @@ export default function ProfileDashboard({ profileData }) {
                     scope="col"
                     className="px-6 py-3 text-start text-xs font-medium text-gray-500"
                 >
-                    Possible Violation
+                    Submission Count
                 </th>
                 <th
                     scope="col"
                     className="px-6 py-3 text-start text-xs font-medium text-gray-500"
                 >
-                    Positive Violation
+                    Reviewer Count
                 </th>
                 <th
                     scope="col"

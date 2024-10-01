@@ -19,10 +19,10 @@ function ProfileRow({ pro }) {
       </td>
       <td className="px-6 py-4 text-sm text-gray-800">{pro.email}</td>
       <td className="px-6 py-4 text-sm text-gray-800">
-        {pro.violator.possible.length}
+        {pro.paper.size}
       </td>
       <td className="px-6 py-4 text-sm text-gray-800">
-        {pro.violator.positive.length}
+        {pro.reviewer.size}
       </td>
       <td className="px-6 py-4 text-sm font-medium text-gray-800">
         {pro.violator.positive.length + pro.violator.possible.length}

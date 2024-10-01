@@ -9,8 +9,8 @@ const buildTempProfile = (name, email) =>{
             possible: [],
             positive: []
         },
-        paper: [],
-        reviewer: [],
+        paper: new Set(),
+        reviewer: new Set(),
         violation: {}
     }
 }
@@ -32,20 +32,13 @@ const addProfile = (profiles, person, violator, role, coiPaper, type, violation_
 
     // add coi violation to person profile
     profile.violator[violation_category].push(violatorSchema);
-
-    if (!profile.reviewer.includes(violator.email)) {
-        profile.reviewer.push(violator.email);
-    }
-
-    
-    const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
-    const currentPapers = profile.paper;
+    profile.reviewer.add(violator.email);
 
     // Add paperIds to the list only if they don't already exist
+    const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
+
     paperIds.forEach((id) => {
-        if (!currentPapers.includes(id)) {
-            currentPapers.push(id);
-        }
+        profile.paper.add(id);
     });
 
     // Add violation counter for violation category {inst: 2, past_sub: 1}
@@ -142,22 +135,6 @@ export const buildProfiles = (data) => {
     return profiles;
 }
 
-const buildDatasetAll = (profilesData) => {
-    const chartDatas = [];
-    Object.keys(profilesData).forEach((key) => {
-        const profile = profilesData[key];
-
-        const chartData = {
-            group: "All",
-            key: `${profile.name}`,
-            value: Object.values(profile.violation).reduce((acc, value) => acc + value, 0),
-        };
-        chartDatas.push(chartData);
-    });
-    
-    return chartDatas;
-    
-};
 export const buildTopProfile = (profilesData) => {
     const tempProfiles = [];
     Object.keys(profilesData).forEach((key) => {
@@ -165,8 +142,8 @@ export const buildTopProfile = (profilesData) => {
 
         const profileData = {
             name: profile.name,
-            submission_count: profile.paper.length,
-            reviewer_count: profile.reviewer.length,
+            submission_count: profile.paper.size,
+            reviewer_count: profile.reviewer.size,
             count: Object.values(profile.violation).reduce((acc, value) => acc + value, 0),
             profileData: profile
         };
@@ -176,50 +153,4 @@ export const buildTopProfile = (profilesData) => {
     return {topProfiles: tempProfiles
         .sort((a, b) => b.submission_count - a.submission_count)
         .slice(0, 5)};
-    
-};
-const buildDatasetCOI = (profilesData, type, datasetName) => {
-    const data = [];
-    Object.keys(profilesData).forEach((key) => {
-        const profile = profilesData[key];
-        
-        const userData = {
-            group: datasetName,
-            key: `${profile.name}`,
-            value: profile.violation[type] !== undefined ? profile.violation[type] : 0,
-        };
-        data.push(userData);
-    });
-    return data;
-    
-};
-
-export const buildProfileGraph = (profilesData) => {
-    const dataAll = buildDatasetAll(profilesData);
-    const dataPastSub = buildDatasetCOI(profilesData, "past_sub", "Past Submissions")
-    const dataMetaPC = buildDatasetCOI(profilesData, "meta_pc", "COI Violations")
-    const dataInst = buildDatasetCOI(profilesData, "inst", "Institution Violations")
-    // Define options with correct syntax
-    const options = {
-        title: 'Profile Violation Chart',
-        data: {
-            selectedGroups: ['All'],
-        },
-        axes: {
-            left: {
-                mapsTo: 'value',
-            },
-            bottom: {
-                scaleType: 'labels',
-                mapsTo: 'key',
-            },
-        },
-        height: '400px',
-    };
-    const data = [...dataAll, ...dataPastSub, ...dataMetaPC, ...dataInst];
-    data.sort((a, b) => b.value - a.value);
-    return {
-        data: data,
-        options: options
-    }
 };
