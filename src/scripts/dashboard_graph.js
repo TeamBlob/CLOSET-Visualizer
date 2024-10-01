@@ -1,6 +1,4 @@
-import { legend } from "@carbon/charts";
-
-const buildUnreportCount = (isAll, data) => {
+const buildPaperCountCount = (isAll, data) => {
     const chartDatas = []
     
     Object.keys(data).length > 0 && Object.keys(data).forEach((key) => {
@@ -42,7 +40,8 @@ const buildUnreportCount = (isAll, data) => {
         },
         height: "400px",
         legend: {
-            alignment: "center"
+            alignment: "center",
+            enabled: false
         }
         
     }
@@ -52,62 +51,66 @@ const buildUnreportCount = (isAll, data) => {
 
 const buildCategoryDataset = (isAll, data) => {
     const chartDatas = []
-
-    Object.keys(data).length > 0 && Object.keys(data).forEach((coi_types) => {
-        const dataSubDashboard = data[coi_types];
-        Object.keys(dataSubDashboard).forEach((coi_category) => {
-            const categoryName = dataSubDashboard[coi_category].name
-            const coiDatas = dataSubDashboard[coi_category].coi_data;
-
-            // Submission Count
-            coiDatas.forEach((coiPaper) => {
-                const submissionCount = coiPaper.pageId.toString().split(",").map(item => item.trim()).length;
-                const existingData = chartDatas.find((item) => 
-                                                        item.key === categoryName && 
-                                                        item.group === "Submission Count");
-                if (existingData) {
-                    // If the paperId exists, increment its value by 1
-                    existingData.value += submissionCount;
-                } else {
-                    // If the paperId does not exist, create a new entry
-                    const chartData = {
-                        group: "Submission Count",
-                        key: categoryName,
-                        value: submissionCount,
-                    };
-                    chartDatas.push(chartData)
-                }
-            });
-
-        });
+    let submissionDict = {}
+    let reviewerDict = {}
+    Object.keys(data).length > 0 && Object.keys(data).forEach((key) => {
+        const subCoiType = key;
+        const dataSubDashboard = data[subCoiType];
 
         Object.keys(dataSubDashboard).forEach((coi_category) => {
             const categoryName = dataSubDashboard[coi_category].name
             const coiDatas = dataSubDashboard[coi_category].coi_data;
-
-            // Submission Count
-            coiDatas.forEach((coiPaper) => {
-                const reviewerCount = coiPaper.reviewer.length
-                const existingData = chartDatas.find((item) => 
-                                                        item.key === categoryName && 
-                                                        item.group === "Reviewer Count");
-                if (existingData) {
-                    // If the paperId exists, increment its value by 1
-                    existingData.value += reviewerCount;
-                } else {
-                    // If the paperId does not exist, create a new entry
-                    const chartData = {
-                        group: "Reviewer Count",
-                        key: categoryName,
-                        value: reviewerCount,
-                    };
-                    chartDatas.push(chartData)
+            // Setting up Submission Dictionary schema for ChartData
+            if (!(categoryName in submissionDict))
+            {
+                submissionDict[categoryName] = { 
+                    group: "Submission Count",
+                    key: categoryName,
+                    data: new Set()
+                };
+            }
+            // Setting up Reviewer Dictionary schema for ChartData
+            if (!(categoryName in reviewerDict))
+            {
+                reviewerDict[categoryName] = { 
+                    group: "Reviewer Count",
+                    key: categoryName,
+                    data: new Set()
                 }
-            });
+            }
+            
+            coiDatas.forEach((coiPaper) => {
 
+                // Populating Submission Set
+                const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
+                paperIds.forEach((paper) => submissionDict[categoryName].data.add(paper));
+
+                // Populating Reviewer Set
+                coiPaper.reviewer.forEach((person) => reviewerDict[categoryName].data.add(person.email))
+            });
         });
     });
+
+    // Setting Chart Dataset from Submission Data 
+    Object.keys(submissionDict).forEach((key) => {
+        const chartSubmissionData = {
+            group: submissionDict[key].group,
+            key: submissionDict[key].key,
+            value: submissionDict[key].data.size,
+        };
+        chartDatas.push(chartSubmissionData)
+    });
+    // Setting Chart Dataset from Reviewer Data 
+    Object.keys(reviewerDict).forEach((key) => {
+        const chartReviewerData = {
+            group: reviewerDict[key].group,
+            key: reviewerDict[key].key,
+            value: reviewerDict[key].data.size,
+        };
+        chartDatas.push(chartReviewerData)
+    });
     
+    // Setting Options
     const options = {
         title: isAll ? 'Unreported COI Category' : 'COI Violation Category',
         data: {
@@ -131,22 +134,60 @@ const buildCategoryDataset = (isAll, data) => {
 
 }
 
-const buildDatasetPositivePossible = (data) => {
+const buildDatasetPositivePossible_ = (isAll, data) => {
     const chartDatas = []
+    let submissionDict = {}
+    let reviewerDict = {}
     
     Object.keys(data).length > 0 && Object.keys(data).forEach((key) => {
-        const dataSubDashboard = data[key];
+        const subCoiType = key;
+        const dataSubDashboard = data[subCoiType];
+        let tempSubmissionDict = {}
+        let tempReviewerDict = {}
+
+        // Setting up Submission Dictionary schema for ChartData
+        if (!(subCoiType in tempSubmissionDict))
+        {
+            tempSubmissionDict[subCoiType] = { 
+                group: "Submission Count",
+                key: subCoiType,
+                data: new Set()
+            }
+        }
+        // Setting up Reviewer Dictionary schema for ChartData
+        if (!(subCoiType in tempReviewerDict))
+        {
+            tempReviewerDict[subCoiType] = { 
+                group: "Reviewer Count",
+                key: subCoiType,
+                data: new Set()
+            }
+        }
         
-        let count = 0;
         Object.keys(dataSubDashboard).forEach((key) => {
-            count += dataSubDashboard[key].coi_data.length;
+            const coiDatas = dataSubDashboard[key].coi_data;
+
+            coiDatas.forEach((coiPaper) => {
+                const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
+                paperIds.forEach((paper) => tempSubmissionDict[subCoiType].data.add(paper));
+
+                // Populating Reviewer Set
+                coiPaper.reviewer.forEach((person) => tempReviewerDict[subCoiType].data.add(person.email))
+            });
         });
-        const chartData = {
-            group: "Main",
-            key: key,
-            value: count,
+
+        const chartSubmissionData = {
+            group: tempSubmissionDict[key].group,
+            key: tempSubmissionDict[key].key,
+            value: tempSubmissionDict[key].data.size,
         };
-        chartDatas.push(chartData) 
+        chartDatas.push(chartSubmissionData)
+        const chartReviewerData = {
+            group: tempReviewerDict[key].group,
+            key: tempReviewerDict[key].key,
+            value: tempReviewerDict[key].data.size,
+        };
+        chartDatas.push(chartReviewerData)
     });
 
     const options = {
@@ -173,10 +214,12 @@ const buildDatasetPositivePossible = (data) => {
     return { data: chartDatas, options: options };
 }
 
+
 export const buildViolationGraph = (isAll, data) => {
-    const paperCountSetting = buildUnreportCount(isAll, data)
-    const positivePossibleSetting = buildDatasetPositivePossible(data)
+    const paperCountSetting = buildPaperCountCount(isAll, data)
+    const positivePossibleSetting = buildDatasetPositivePossible_(isAll, data)
     const categorySetting = buildCategoryDataset(isAll, data)
+    
     
     
     return {

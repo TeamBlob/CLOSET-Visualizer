@@ -11,7 +11,6 @@ export default function ChartUI({ chartSetting }) {
     
     if (chartInstance) {
       chartInstance.services.events.addEventListener('pie-slice-click', (event) => {
-        console.log('Pie slice clicked:', event.detail.datum.data);
         setSelectedPaper(event.detail.datum.data);
       });
 

@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 
 function ChartPaperRow({ paper, type }) {
   const navigate = useNavigate();
-  console.log(type)
 
   const handleRowClick = () => {
     navigate(`/coidetails/${paper.key}`, 
