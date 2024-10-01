@@ -4,7 +4,7 @@ export default function ProfileChart({topProfiles}) {
     return (
       <>
         {!topProfiles ? (
-          <p>No chart data available...</p>
+          <p className='py-1 font-medium'>No chart data available...</p>
         ) : (
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <p className='py-1 font-medium'>Top 5 Author (By Submission)</p>

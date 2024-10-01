@@ -11,7 +11,8 @@ const buildTempProfile = (name, email) =>{
         },
         paper: new Set(),
         reviewer: new Set(),
-        violation: {}
+        submission_type: {},
+        reviewer_type: {}
     }
 }
 
@@ -32,8 +33,18 @@ const addProfile = (profiles, person, violator, role, coiPaper, type, violation_
 
     // add coi violation to person profile
     profile.violator[violation_category].push(violatorSchema);
+    
+    // -- Handle Author's Reviewer data -- 
+    // add Violator Email into author's Reviewer Set
     profile.reviewer.add(violator.email);
 
+    // add Violator Email into author's Reviewer COI Category Set {inst: set(email1, email2)}
+    if (!profile.reviewer_type.hasOwnProperty(type))
+        profile.reviewer_type[type] = new Set();
+    
+    profile.reviewer_type[type].add(violator.email)
+
+    // -- Handle Author's Submission data --
     // Add paperIds to the list only if they don't already exist
     const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
 
@@ -41,11 +52,13 @@ const addProfile = (profiles, person, violator, role, coiPaper, type, violation_
         profile.paper.add(id);
     });
 
-    // Add violation counter for violation category {inst: 2, past_sub: 1}
-    if (!profile.violation.hasOwnProperty(type))
-        profile.violation[type] = 0
-    profile.violation[type] += 1
+    // Add violation counter for violation category {inst: set(100, 200, 300), past_sub: set(100, 200, 300)}
+    if (!profile.submission_type.hasOwnProperty(type))
+        profile.submission_type[type] = new Set();
     
+    paperIds.forEach((id) => {
+        profile.submission_type[type].add(id);
+    });
 }
 
 const buildProfilePastSub = (data, profiles, category) => {
@@ -144,7 +157,6 @@ export const buildTopProfile = (profilesData) => {
             name: profile.name,
             submission_count: profile.paper.size,
             reviewer_count: profile.reviewer.size,
-            count: Object.values(profile.violation).reduce((acc, value) => acc + value, 0),
             profileData: profile
         };
         tempProfiles.push(profileData);
