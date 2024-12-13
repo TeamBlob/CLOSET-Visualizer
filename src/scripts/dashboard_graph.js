@@ -34,7 +34,7 @@ const buildPaperCountCount = (isAll, data) => {
     });
 
     const options = {
-        title: isAll ? 'Unreported Paper Violation (Num of Unreported COI)' : 'COI Paper Violation (Num of COI Violation)',
+        title: isAll ? 'Submissions (Num of Submissions)' : 'Paper Violation (Num of Violation)',
         donut: {
             alignment: 'center'
         },
@@ -112,7 +112,7 @@ const buildCategoryDataset = (isAll, data) => {
     
     // Setting Options
     const options = {
-        title: isAll ? 'Unreported COI Category' : 'COI Violation Category',
+        title: isAll ? 'Submissions Category' : 'Violation Category',
         data: {
             selectedGroups: ['Submission Count', 'Reviewer Count'],
         },

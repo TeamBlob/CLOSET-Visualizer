@@ -1,6 +1,7 @@
 const NAME_REGEX = /[^()]+/;
 const EMAIL_REGEX = /([\w\.-]+@([\w-]+\.)+[\w-]+)/;
 const DETAIL_REGEX = /[^()]+/
+const DETAIL_REGEX_2 = /\{\s*'([^']+)'(?:,\s*'([^']+)')*\s*\}/
 
 
 export const buildPastSub = (filename, metadata) => {
@@ -67,6 +68,15 @@ export const buildPastSub = (filename, metadata) => {
 }
 
 export const buildInst = (filename, metadata) =>{
+
+    function findInstituteByName(name, authorList) {
+        
+        const author = authorList.find(author => author.name === name.trim());
+
+
+        return author ? author.institute : null;
+    }
+
     const instData = [
     { 
         category: 'positive',
@@ -79,7 +89,7 @@ export const buildInst = (filename, metadata) =>{
 
     if(metadata.length < 1) return instData
 
-    const detailRegex = new RegExp(`\\(${EMAIL_REGEX.source}, ${DETAIL_REGEX.source}\\)`);
+    const detailRegex = new RegExp(`\\(${EMAIL_REGEX.source}, (${DETAIL_REGEX.source}|${DETAIL_REGEX_2.source})\\)`);
     const nameDetailReg = new RegExp(`(${NAME_REGEX.source}${detailRegex.source})`, 'g');
 
     for (let i = 0; i < metadata.length; i++) {
@@ -101,6 +111,8 @@ export const buildInst = (filename, metadata) =>{
             const author_list = handleInstSchema(authors.matchAll(nameDetailReg));
             const reviewer_list = handleInstSchema(reviewers.matchAll(nameDetailReg));
 
+            
+            
             const violationList = [];
             if (!isPossible){
                 const instRegex = /\([\w\s]+,[\w\s]+\)/g;
@@ -118,17 +130,25 @@ export const buildInst = (filename, metadata) =>{
                 }
             }
             else{
-                const instRegex = /([\w\s]+-\{[\w\s',]+\})/g;
+                const instRegex = /([\w\s]+(-\{[\w\s',()]+\})?)/g;
+                violation = violation.trim()
                 const matches = violation.match(instRegex);
-                for (const violation of matches) {
-                    const [name, institutesString] = violation.split('-');
-                    const institutes = institutesString.slice(1, -1).split(',').map(institute => institute.trim().slice(1, -1));
+                
+                
+                for (const newViolation of matches) {                    
+                    const [name, institutesString] = newViolation.split('-');
+                    
+                    const institutes = institutesString 
+                        ? institutesString.slice(1, -1).split(',').map(institute => institute.trim().slice(1, -1)) 
+                        : findInstituteByName(name, author_list);
+
                     
                     const jsonData = {
                         "key": crypto.randomUUID(),
                         "name": name.trim(),
                         "institute": institutes
                     };
+
                     violationList.push(jsonData);
                 }
             }
@@ -159,18 +179,16 @@ export const buildInst = (filename, metadata) =>{
 
 const handleInstSchema = (listMatch) => {
     // Regular Expression
-    const detailRegex = new RegExp(`\(${EMAIL_REGEX.source}, ${DETAIL_REGEX.source}\)`);
-
+    const detailRegex = new RegExp(`\(${EMAIL_REGEX.source}, (${DETAIL_REGEX.source}|${DETAIL_REGEX_2.source})\)`);
     const tempList = [] 
     for (const match of listMatch) {
         const matchedData = match[0].trim();
-
+        
         const key = crypto.randomUUID();
         const name = matchedData.match(NAME_REGEX)[0].trim();
-        const detail = matchedData.match(detailRegex)[0].replace(/[()]/g, '').split(',').map(detail => detail.trim());
-        
+        const detail = matchedData.match(detailRegex)[0].replace(/[({'})]/g, '').split(',').map(detail => detail.trim());
         const email = detail[0];
-        const institute = detail[1].replace(/[^\w\s]/g, '');
+        const institute = detail.slice(1).map(item => item.replace(/[^\w\s]/g, ''));
         const jsonData = {
             "key": key,
             "name": name,

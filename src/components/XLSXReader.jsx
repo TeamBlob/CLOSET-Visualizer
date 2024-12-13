@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import UploadFileComponent from './UploadFile'
 import { checkFields } from '../scripts/valid_fields'
 import { buildPastSub, buildInst, buildMetaPC } from '../scripts/violation_structure';
 import { buildViolationGraph } from '../scripts/dashboard_graph';
-import { buildProfiles, buildTopProfile } from "../scripts/profile";
+import { buildProfiles } from "../scripts/profile";
 import { concatList } from "../scripts/common_script"
 import UploadRadioComponent from './UploadRadio';
 
-const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigation}) => {
-
+const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigation, setIsAll}) => {
+    const navigate = useNavigate();
     const [selectedOption, setSelectedOption] = useState("published");
     const coiTypeRegex = "(Inst|Meta|PastSub|PC|MetaPastSub)"
     const coiFileNameRegexStr = `(All-Coi|Coi)${coiTypeRegex}`
@@ -22,7 +23,7 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
             key: crypto.randomUUID(),
             href: "InstituionalCOI",
             name: {
-                "published": "Instituional COI Violation",
+                "published": "Institutional COI Violation",
             },
             description: {
                 "published": "It contains COI violation due to institutional match.",
@@ -68,7 +69,7 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
         );
     
         if (validFiles.length > 0) {
-            console.log("Valid files selected:", validFiles);
+            alert("Successfully Uploaded files selected: \n" + validFiles.map(file => file.name).join('\n'));
             return validFiles
         } else {
             alert("Please select a file with the correct naming convention and .xlsx extension.");
@@ -80,6 +81,7 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
     const handleFileUpload = (files) => {
         const filesArray = Array.from(files);
         const isAll = selectedOption === "unpublished"
+        setIsAll(isAll)
 
         const validFileArray = handleFileSelection(filesArray, isAll)
 
@@ -118,15 +120,25 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
         });
 
         const profile = buildProfiles(COI_DASHBOARD);
-        setCOIDashboardGraph({...buildViolationGraph(isAll, COI_DASHBOARD), ...buildTopProfile(profile)});
+        setCOIDashboardGraph({...buildViolationGraph(isAll, COI_DASHBOARD), ...{profile: profile}});
         setProfiles(profile);
         setDashboard(COI_DASHBOARD);
         
         updateShowProperty('Possible Violation', COI_DASHBOARD?.possible ?? false);
         updateShowProperty('Positive Violation', COI_DASHBOARD?.positive ?? false);
         updateShowProperty('Profile', true)    
-        updateShowProperty('Dashboard Overview', true)        
+        updateShowProperty('Dashboard Overview', true)      
+        updateCurrentProperty('Dashboard Overview')
+        navigate('./overview')
     }
+    const updateCurrentProperty = (name) => {
+        setNavigation(prevNavigation =>
+            prevNavigation.map(item => ({
+              ...item,
+              current: item.name === name, 
+            }))
+          );
+    };
 
     const updateShowProperty = (name, show) => {
         setNavigation(prevNavigation =>
@@ -172,10 +184,10 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
 
 
     return (
-    <>
-        <UploadFileComponent handleFileUpload={handleFileUpload} />
-        <UploadRadioComponent selectedOption={selectedOption} setSelectedOption={setSelectedOption}/>
-    </>
+        <div className="items-center justify-center h-screen w-full bg-gray-100">
+            <UploadFileComponent handleFileUpload={handleFileUpload} />
+            <UploadRadioComponent selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+        </div>
     )
 };
 

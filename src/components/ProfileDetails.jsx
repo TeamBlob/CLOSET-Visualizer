@@ -8,7 +8,12 @@ export default function ProfileDetails() {
     const [positive, setPositive] = useState([]);
     const [possible, setPossible] = useState([]);
 
+    if (!location.state) {
+        // Handle case when location.state is null or undefined
+        return <div>No data available</div>;
+    }
     useEffect(() => {
+        
         if (location.state.profile) {
             setProfile(location.state.profile);
             if (location.state.profile.violator){
@@ -19,10 +24,7 @@ export default function ProfileDetails() {
         
     }, [location.state]); // Only run when state changes
 
-    if (!location.state) {
-        // Handle case when location.state is null or undefined
-        return <div>No data available</div>;
-    }
+    
 
     return (
         <>

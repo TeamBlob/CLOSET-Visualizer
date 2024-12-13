@@ -60,13 +60,13 @@ const buildProfileReviewerDataset = (profilesData, optionsDataset) => {
     return reviewerChartData
 };
 
-export function buildSubmissionProfileGraph(profilesData) {
+export function buildSubmissionProfileGraph(profilesData, isAll) {
     const optionsDataset = [{
         type: "past_sub",
         datasetName: "Past Submissions"
     }, {
         type: "meta_pc",
-        datasetName: "COI Violations"
+        datasetName: isAll ? 'Unreported COI' : 'COI Violation'
     }, {
         type: "inst",
         datasetName: "Institution Violations"
@@ -74,9 +74,21 @@ export function buildSubmissionProfileGraph(profilesData) {
 
     const dataSubmission = buildProfileSubmissionDataset(profilesData, optionsDataset);
 
+    const order = [
+        "Total Submissions",
+        isAll ? 'Unreported COI' : 'COI Violation',
+        "Past Submissions",
+        "Institution Violations"
+    ];
+    
+    dataSubmission.sort((a, b) => {
+        return order.indexOf(a.group) - order.indexOf(b.group);
+    });
+    console.log(dataSubmission)
+
     // Define options with correct syntax
     const options = {
-        title: "Author's Submission Chart",
+        title: (isAll ? "Unreported " : "") + "Submission profiles" ,
         data: {
             selectedGroups: ['Total Submissions'],
         },
@@ -94,6 +106,7 @@ export function buildSubmissionProfileGraph(profilesData) {
                 'Total Submissions': '#01084f',
                 'Past Submissions': '#631e50',
                 'COI Violations': '#a73c5a',
+                'Unreported COI' : '#086ca2',
                 'Institution Violations': '#ff7954',
             },
         },
@@ -108,13 +121,13 @@ export function buildSubmissionProfileGraph(profilesData) {
     };
 }
 
-export function buildReviewerProfileGraph(profilesData) {
+export function buildReviewerProfileGraph(profilesData, isAll) {
     const optionsDataset = [{
             type: "past_sub",
             datasetName: "Past Submissions"
         }, {
             type: "meta_pc",
-            datasetName: "COI Violations"
+            datasetName: isAll ? 'Unreported COI' : 'COI Violation'
         }, {
             type: "inst",
             datasetName: "Institution Violations"
@@ -122,9 +135,21 @@ export function buildReviewerProfileGraph(profilesData) {
 
     const dataReviewer = buildProfileReviewerDataset(profilesData, optionsDataset)
 
+    const order = [
+        "Total Reviewer",
+        isAll ? 'Unreported COI' : 'COI Violation',
+        "Past Submissions",
+        "Institution Violations"
+    ];
+    
+    dataReviewer.sort((a, b) => {
+        return order.indexOf(a.group) - order.indexOf(b.group);
+    });
+    console.log(dataReviewer)
+
     // Define options with correct syntax
     const options = {
-        title: "Author's Reviewer Chart",
+        title: (isAll ? "Unreported " : "") + "Reviewer profiles",
         data: {
             selectedGroups: ['Total Reviewers'],
         },
@@ -142,6 +167,7 @@ export function buildReviewerProfileGraph(profilesData) {
                 'Total Reviewers': '#034569',
                 'Past Submissions': '#235b79',
                 'COI Violations': '#086ca2',
+                'Unreported COI' : '#086ca2',
                 'Institution Violations': '#3c9dd0',
             },
         },

@@ -109,7 +109,10 @@ const handleProfileInstPossible = (coiPaper, profiles, category) => {
     const violations = coiPaper.violation.history
     const name1 = violations[0].name
     const name2 = violations[1].name
+
+    console.log(name1)
     const violator1 = findProfileByName(coiPaper.reviewer, name1) !== -1 ? findProfileByName(coiPaper.reviewer, name1, 'reviewer') : findProfileByName(coiPaper.author, name1, 'author');
+    console.log(name2)
     const violator2 = findProfileByName(coiPaper.reviewer, name2) !== -1 ? findProfileByName(coiPaper.reviewer, name2, 'reviewer') : findProfileByName(coiPaper.author, name2, 'author');
         
     violator1.type == "author" && addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "possible")
@@ -148,21 +151,33 @@ export const buildProfiles = (data) => {
     return profiles;
 }
 
-export const buildTopProfile = (profilesData) => {
+export const buildTopProfile = (profilesData, sortBy) => {
     const tempProfiles = [];
+  
+    // Transform profileData into an array of objects
     Object.keys(profilesData).forEach((key) => {
-        const profile = profilesData[key];
-
-        const profileData = {
-            name: profile.name,
-            submission_count: profile.paper.size,
-            reviewer_count: profile.reviewer.size,
-            profileData: profile
-        };
-        tempProfiles.push(profileData);
+      const profile = profilesData[key];
+  
+      const profileData = {
+        name: profile.name,
+        submission_count: profile.paper.size,
+        reviewer_count: profile.reviewer.size,
+        profileData: profile, // Store original data for any future use
+      };
+  
+      tempProfiles.push(profileData);
     });
-
-    return {topProfiles: tempProfiles
-        .sort((a, b) => b.submission_count - a.submission_count)
-        .slice(0, 5)};
-};
+  
+    // Sort by the chosen criteria: submission_count or reviewer_count
+    const sortedProfiles = tempProfiles.sort((a, b) => {
+      return sortBy === 'submission_count'
+        ? b.submission_count - a.submission_count
+        : b.reviewer_count - a.reviewer_count;
+    });
+  
+    // Return the top 5 sorted profiles
+    return {
+      topProfiles: sortedProfiles.slice(0, 5),
+    };
+  };
+  

@@ -24,9 +24,6 @@ function ProfileRow({ pro }) {
       <td className="px-6 py-4 text-sm text-gray-800">
         {pro.reviewer.size}
       </td>
-      <td className="px-6 py-4 text-sm font-medium text-gray-800">
-        {pro.violator.positive.length + pro.violator.possible.length}
-      </td>
     </tr>
   );
 }
