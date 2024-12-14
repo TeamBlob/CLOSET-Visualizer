@@ -1,5 +1,7 @@
 import { findProfileByName } from './common_script'
 
+const list_of_errors = []
+
 const buildTempProfile = (name, email) =>{
     return {
         key: crypto.randomUUID(),
@@ -18,47 +20,54 @@ const buildTempProfile = (name, email) =>{
 
 const addProfile = (profiles, person, violator, role, coiPaper, type, violation_category) => {
     // building the coi violator schema
-    let violatorSchema = {
-        violator: violator.email,
-        role: role,
-        type: type,
-        coi_paper: coiPaper, 
-    };
+    try {
+        let violatorSchema = {
+            violator: violator.email,
+            role: role,
+            type: type,
+            coi_paper: coiPaper, 
+        };
+        
+        // check if email of person exist in profile, if not create new profile json
+        //console.log(person)
+        if (!profiles.hasOwnProperty(person.email))
+            profiles[person.email] = buildTempProfile(person.name, person.email);
     
-    // check if email of person exist in profile, if not create new profile json
-    if (!profiles.hasOwnProperty(person.email))
-        profiles[person.email] = buildTempProfile(person.name, person.email);
-
-    const profile = profiles[person.email];
-
-    // add coi violation to person profile
-    profile.violator[violation_category].push(violatorSchema);
+        const profile = profiles[person.email];
     
-    // -- Handle Author's Reviewer data -- 
-    // add Violator Email into author's Reviewer Set
-    profile.reviewer.add(violator.email);
-
-    // add Violator Email into author's Reviewer COI Category Set {inst: set(email1, email2)}
-    if (!profile.reviewer_type.hasOwnProperty(type))
-        profile.reviewer_type[type] = new Set();
+        // add coi violation to person profile
+        profile.violator[violation_category].push(violatorSchema);
+        
+        // -- Handle Author's Reviewer data -- 
+        // add Violator Email into author's Reviewer Set
+        profile.reviewer.add(violator.email);
     
-    profile.reviewer_type[type].add(violator.email)
-
-    // -- Handle Author's Submission data --
-    // Add paperIds to the list only if they don't already exist
-    const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
-
-    paperIds.forEach((id) => {
-        profile.paper.add(id);
-    });
-
-    // Add violation counter for violation category {inst: set(100, 200, 300), past_sub: set(100, 200, 300)}
-    if (!profile.submission_type.hasOwnProperty(type))
-        profile.submission_type[type] = new Set();
+        // add Violator Email into author's Reviewer COI Category Set {inst: set(email1, email2)}
+        if (!profile.reviewer_type.hasOwnProperty(type))
+            profile.reviewer_type[type] = new Set();
+        
+        profile.reviewer_type[type].add(violator.email)
     
-    paperIds.forEach((id) => {
-        profile.submission_type[type].add(id);
-    });
+        // -- Handle Author's Submission data --
+        // Add paperIds to the list only if they don't already exist
+        const paperIds = coiPaper.pageId.toString().split(",").map(item => item.trim());
+    
+        paperIds.forEach((id) => {
+            profile.paper.add(id);
+        });
+    
+        // Add violation counter for violation category {inst: set(100, 200, 300), past_sub: set(100, 200, 300)}
+        if (!profile.submission_type.hasOwnProperty(type))
+            profile.submission_type[type] = new Set();
+        
+        paperIds.forEach((id) => {
+            profile.submission_type[type].add(id);
+        });
+      } catch (error) {
+        // Code to handle the error
+        list_of_errors.push(coiPaper.pageId)
+    }
+
 }
 
 const buildProfilePastSub = (data, profiles, category) => {
@@ -102,7 +111,6 @@ const handleProfileInstPositive = (coiPaper, profiles, category) => {
         violator1.type == "author" && addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "positive")
         violator1.type == "reviewer" && addProfile(profiles, violator2.profile, violator1.profile, violator2.type, coiPaper, 'inst', "positive")
     }
-    
 }
 
 const handleProfileInstPossible = (coiPaper, profiles, category) => {
@@ -110,9 +118,7 @@ const handleProfileInstPossible = (coiPaper, profiles, category) => {
     const name1 = violations[0].name
     const name2 = violations[1].name
 
-    console.log(name1)
     const violator1 = findProfileByName(coiPaper.reviewer, name1) !== -1 ? findProfileByName(coiPaper.reviewer, name1, 'reviewer') : findProfileByName(coiPaper.author, name1, 'author');
-    console.log(name2)
     const violator2 = findProfileByName(coiPaper.reviewer, name2) !== -1 ? findProfileByName(coiPaper.reviewer, name2, 'reviewer') : findProfileByName(coiPaper.author, name2, 'author');
         
     violator1.type == "author" && addProfile(profiles, violator1.profile, violator2.profile, violator1.type, coiPaper, 'inst', "possible")
@@ -147,7 +153,8 @@ export const buildProfiles = (data) => {
 
         coiFunction[type].build(coiData.coi_data, profiles, 'possible')
     });
-
+    if (list_of_errors.length > 0)
+        alert(`Error when processing the following paper violation: ${list_of_errors}!`)
     return profiles;
 }
 

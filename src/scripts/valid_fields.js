@@ -6,8 +6,7 @@ const inst_fields = ['paper_id', 'authors', 'metareviewers', 'details_of_institu
     'details_of_possible_past_institutional_coi']
 
 const meta_pc_fields = ['author', 'metareviewers', 'dblp_of_metareviewers', 'paper_ids', 
-    'coauthorship_during_last_3_years', 'coauthorship_during_last_10_years', 
-    'coauthorship_count_in_last_10_years', 'coauthorship_history', 'comments']
+    'coauthorship_history', 'comments']
 
 const allValidFields = [['past_sub', past_sub_fields], ['inst', inst_fields], ['meta_pc', meta_pc_fields]]
 
@@ -31,7 +30,7 @@ const areSimilarFields = (list1, list2) => {
     // Check if all items in both lists are the same
     for (let i = 0; i < list1.length; i++) {
         if (list1[i] !== list2[i]) {
-        return false;
+            return false;
         }
     }
     return true;
@@ -48,5 +47,19 @@ export const checkFields = (input_fields) => {
             return allValidFields[i][0];
         }
     }
+    if (checkPCFields(formatFields))
+        return allValidFields[2][0]
     return -1;
+}
+
+const checkPCFields = (formatFields) => {
+    for (let i = 0; i < meta_pc_fields.length; i++) {
+
+        if (formatFields.includes(meta_pc_fields[i])){
+            continue;
+        }
+        else
+            return false;
+    }
+    return true
 }

@@ -110,8 +110,13 @@ export const buildInst = (filename, metadata) =>{
 
             const author_list = handleInstSchema(authors.matchAll(nameDetailReg));
             const reviewer_list = handleInstSchema(reviewers.matchAll(nameDetailReg));
+            if(paperid===1228)
+            {
+                console.log(paperid)
+                console.log('A', author_list)
+                console.log('R', reviewer_list)
+            }
 
-            
             
             const violationList = [];
             if (!isPossible){
@@ -130,24 +135,31 @@ export const buildInst = (filename, metadata) =>{
                 }
             }
             else{
-                const instRegex = /([\w\s]+(-\{[\w\s',()]+\})?)/g;
+                const newRegex = /\([\w\s]+-\{([\w\s',()-]+)?\},\s[\w\s]+(-\{([\w\s',()-]+)?\})?\)/g
+                const instRegex = /([\w\s]+(-\{[\w\s',()-]+\})?)/g;
                 violation = violation.trim()
                 const matches = violation.match(instRegex);
-                
-                
+                if(paperid===1228)
+                {
+                    console.log(matches)
+                }
                 for (const newViolation of matches) {                    
-                    const [name, institutesString] = newViolation.split('-');
+                    const [name, institutesString] = newViolation.split('-{');
                     
                     const institutes = institutesString 
                         ? institutesString.slice(1, -1).split(',').map(institute => institute.trim().slice(1, -1)) 
                         : findInstituteByName(name, author_list);
-
                     
                     const jsonData = {
                         "key": crypto.randomUUID(),
                         "name": name.trim(),
                         "institute": institutes
                     };
+
+                    if(paperid===1228)
+                    {
+                        console.log(jsonData)
+                    }
 
                     violationList.push(jsonData);
                 }
@@ -197,6 +209,7 @@ const handleInstSchema = (listMatch) => {
         };
         tempList.push(jsonData);
     }
+    
     return tempList;
 }
 
@@ -223,9 +236,6 @@ export const buildMetaPC = (filename, metadata) =>{
             const reviewer = row['(META)REVIEWERS']; 
             
             const reviewerURL = row['DBLP OF (META)REVIEWERS'];
-            const during_year3 = row['CO-AUTHORSHIP DURING LAST 3 YEARS'];
-            const during_year10 = row['CO-AUTHORSHIP DURING LAST 10 YEARS'];
-            const count_last10 = row['CO-AUTHORSHIP COUNT IN LAST 10 YEARS'];
             const history_violation = row['CO-AUTHORSHIP HISTORY'];
             const comment = row['COMMENTS']
             const authorName = author.match(NAME_REGEX)[0];
@@ -243,9 +253,6 @@ export const buildMetaPC = (filename, metadata) =>{
                 reviewer: [{ key: crypto.randomUUID(), name: reviewerName, email: reviewerEmail, url: reviewerURL }],
                 violation: {
                     type: "co_authorship_violation",
-                    during_year3: handle_meta_pc_schemas(during_year3),
-                    during_year10: handle_meta_pc_schemas(during_year10),
-                    count_last10: count_last10,
                     history: handle_meta_pc_schemas(history_violation),
                     comment: comment,
                 }

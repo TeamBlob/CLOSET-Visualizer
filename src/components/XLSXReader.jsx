@@ -105,6 +105,7 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
     };
 
     const processData = (data, isAll) => {
+        const list_of_errors = []
         if (data.length === 0) return
         
         data.forEach(sub_coi => {
@@ -116,8 +117,13 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
                 let type = checkFields(Object.keys(fields))
                 if (type !== -1)
                     constructSubCOIJson(type, filename, metadata)
+                else
+                    list_of_errors.push(filename)
             }
         });
+
+        if(list_of_errors.length > 0)
+            alert(`Could not proccess the following files due to field inconsistency [${list_of_errors}]`)
 
         const profile = buildProfiles(COI_DASHBOARD);
         setCOIDashboardGraph({...buildViolationGraph(isAll, COI_DASHBOARD), ...{profile: profile}});
