@@ -157,7 +157,9 @@ const XLSXReader = ({setDashboard, setProfiles, setCOIDashboardGraph, setNavigat
         // retrieve coiType json from coiTypesDict dictionary
         const coiType = coiTypesDict[type.toLowerCase()]
 
-        const coi_data = coiType.coi_function(filename, metadata)
+        const [coi_data, list_of_errors] = coiType.coi_function(filename, metadata)
+        if (list_of_errors.length > 0)
+            alert('An error has occur, please raise an issue to get it looked at.')
         const positive = coi_data[0];
         const possible = coi_data[1];
         

@@ -5,6 +5,7 @@ const DETAIL_REGEX_2 = /\{\s*'([^']+)'(?:,\s*'([^']+)')*\s*\}/
 
 
 export const buildPastSub = (filename, metadata) => {
+    const list_of_errors = []
     const pastSubData = [
     { 
         category: 'positive',
@@ -60,20 +61,19 @@ export const buildPastSub = (filename, metadata) => {
             
         }
         catch(error){
+            list_of_errors.push(row)
             continue;
         }
     }
     
-    return pastSubData
+    return [pastSubData, list_of_errors]
 }
 
 export const buildInst = (filename, metadata) =>{
-
+    const list_of_errors = []
     function findInstituteByName(name, authorList) {
         
         const author = authorList.find(author => author.name === name.trim());
-
-
         return author ? author.institute : null;
     }
 
@@ -110,13 +110,6 @@ export const buildInst = (filename, metadata) =>{
 
             const author_list = handleInstSchema(authors.matchAll(nameDetailReg));
             const reviewer_list = handleInstSchema(reviewers.matchAll(nameDetailReg));
-            if(paperid===1228)
-            {
-                console.log(paperid)
-                console.log('A', author_list)
-                console.log('R', reviewer_list)
-            }
-
             
             const violationList = [];
             if (!isPossible){
@@ -135,14 +128,10 @@ export const buildInst = (filename, metadata) =>{
                 }
             }
             else{
-                const newRegex = /\([\w\s]+-\{([\w\s',()-]+)?\},\s[\w\s]+(-\{([\w\s',()-]+)?\})?\)/g
                 const instRegex = /([\w\s]+(-\{[\w\s',()-]+\})?)/g;
                 violation = violation.trim()
                 const matches = violation.match(instRegex);
-                if(paperid===1228)
-                {
-                    console.log(matches)
-                }
+
                 for (const newViolation of matches) {                    
                     const [name, institutesString] = newViolation.split('-{');
                     
@@ -150,18 +139,15 @@ export const buildInst = (filename, metadata) =>{
                         ? institutesString.slice(1, -1).split(',').map(institute => institute.trim().slice(1, -1)) 
                         : findInstituteByName(name, author_list);
                     
-                    const jsonData = {
-                        "key": crypto.randomUUID(),
-                        "name": name.trim(),
-                        "institute": institutes
-                    };
-
-                    if(paperid===1228)
+                    if (name !== '')
                     {
-                        console.log(jsonData)
+                        let jsonData = {
+                            "key": crypto.randomUUID(),
+                            "name": name.trim(),
+                            "institute": institutes
+                        };        
+                        violationList.push(jsonData);
                     }
-
-                    violationList.push(jsonData);
                 }
             }
             const coiData_json = {
@@ -181,12 +167,12 @@ export const buildInst = (filename, metadata) =>{
         
         }
         catch(error){
-            console.log(error)
+            list_of_errors.push(row)
             continue;
         }
         
     }
-    return instData
+    return [instData, list_of_errors]
 }
 
 const handleInstSchema = (listMatch) => {
@@ -214,6 +200,7 @@ const handleInstSchema = (listMatch) => {
 }
 
 export const buildMetaPC = (filename, metadata) =>{
+    const list_of_errors = []
     const metaPCData = [
     { 
         category: 'positive',
@@ -260,11 +247,12 @@ export const buildMetaPC = (filename, metadata) =>{
             isPossible ? metaPCData[1].coi_data.push(coiData_json) : metaPCData[0].coi_data.push(coiData_json);
         }
         catch(error){
-
+            list_of_errors.push(row)
             continue;
         }
     }
-    return metaPCData
+    
+    return [metaPCData, list_of_errors]
 } 
 
 const handle_meta_pc_schemas = (data) => {
